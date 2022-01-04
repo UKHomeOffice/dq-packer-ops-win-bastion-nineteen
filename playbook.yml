@@ -35,10 +35,11 @@
         path: C:\scripts
         state: directory
 
-    - name: Copy sauchConfig json file
+    - name: Copy LauchConfig json file
       win_copy:
         src: ./scripts/LaunchConfig.json
-        dest: C:\ProgramData\Amazon\EC2-Windows\Launch\Config
+        dest: C:\ProgramData\Amazon\EC2-Windows\Launch\Config\LaunchConfig.json
+        remote_src: yes
 
     - name: Execute InitializeInstance script
       win_shell: |
