@@ -13,18 +13,22 @@
       win_shell: |
         C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 -Schedule
 
-  # C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\SysprepInstance.ps1
-
-    - name: Install AD UAC, GPM
+    - name: Initialisation and Sysprep
       win_shell: |
-        Import-Module ServerManager
-        Add-WindowsFeature RSAT-ADDS-Tools
-        Add-WindowsFeature –Name GPMC
-        Add-WindowsFeature -Name Telnet-Client
+        C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\SysprepInstance.ps1
 
-    - name: Set timezone to 'GMT Standard Time' (GMT)
-      win_timezone:
-        timezone: GMT Standard Time
+
+    # 
+    # - name: Install AD UAC, GPM
+    #   win_shell: |
+    #     Import-Module ServerManager
+    #     Add-WindowsFeature RSAT-ADDS-Tools
+    #     Add-WindowsFeature –Name GPMC
+    #     Add-WindowsFeature -Name Telnet-Client
+    #
+    # - name: Set timezone to 'GMT Standard Time' (GMT)
+    #   win_timezone:
+    #     timezone: GMT Standard Time
 
     # - name: Create tmp directory
     #   win_file:
