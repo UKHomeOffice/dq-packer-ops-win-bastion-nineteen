@@ -135,10 +135,10 @@
     #   args:
     #     executable: powershell.exe
     #
-    - name: Unzip PSSlack Powershell module
-      win_unzip:
-        src: C:\tmp\install\PSSlack-master.zip
-        dest: C:\scripts\
+    # - name: Unzip PSSlack Powershell module
+    #   win_unzip:
+    #     src: C:\tmp\install\PSSlack-master.zip
+    #     dest: C:\scripts\
 
     - name: Install AWS Toolkit for Powershell
       win_package:
