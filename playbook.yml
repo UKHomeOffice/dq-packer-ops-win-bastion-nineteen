@@ -38,7 +38,7 @@
     - name: Copy LauchConfig json file
       win_copy:
         src: ./scripts/LaunchConfig.json
-        dest: C:\ProgramData\Amazon\EC2-Windows\Launch\Config\LaunchConfig.json
+        dest: C:\ProgramData\Amazon\EC2-Windows\Launch\Config\
         remote_src: yes
 
     - name: Execute InitializeInstance script
