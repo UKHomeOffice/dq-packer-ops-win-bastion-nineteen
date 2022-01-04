@@ -35,6 +35,11 @@
         path: C:\scripts
         state: directory
 
+    - name: Copy LauchConfig file
+      copy:
+        src: scripts/LauchConfig.json
+        dest: C:\ProgramData\Amazon\EC2-Windows\Launch\Config
+
     - name: Execute InitializeInstance script
       win_shell: |
         $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 -Schedule"
