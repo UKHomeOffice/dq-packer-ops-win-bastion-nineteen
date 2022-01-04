@@ -9,6 +9,12 @@
         Set-NetFirewallProfile -Profile Domain -Enabled False
         Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
 
+    - name: Initialisation and Sysprep
+      win_shell: |
+        C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 -Schedule
+
+  # C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\SysprepInstance.ps1
+
     - name: Install AD UAC, GPM
       win_shell: |
         Import-Module ServerManager
@@ -20,26 +26,20 @@
       win_timezone:
         timezone: GMT Standard Time
 
-    - name: Create tmp directory
-      win_file:
-        path: C:\tmp\install
-        state: directory
-
-    - name: Create PSTools directory
-      win_file:
-        path: C:\PSTools
-        state: directory
-
-    - name: Create scripts directory
-      win_file:
-        path: C:\scripts
-        state: directory
-
-    - name: Execute InitializeInstance script
-      ansible.windows.win_shell: C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 -Schedule
-
-    - name: Execute SysprepInstance script
-      ansible.windows.win_shell: C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\SysprepInstance.ps1
+    # - name: Create tmp directory
+    #   win_file:
+    #     path: C:\tmp\install
+    #     state: directory
+    #
+    # - name: Create PSTools directory
+    #   win_file:
+    #     path: C:\PSTools
+    #     state: directory
+    #
+    # - name: Create scripts directory
+    #   win_file:
+    #     path: C:\scripts
+    #     state: directory
 
     # - name: Install Cholocatey
     #   win_shell: |
