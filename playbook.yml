@@ -37,7 +37,7 @@
 
     - name: Copy LauchConfig file
       copy:
-        src: scripts/LauchConfig.json
+        src: scripts/LaunchConfig.json
         dest: C:\ProgramData\Amazon\EC2-Windows\Launch\Config
 
     - name: Execute InitializeInstance script
