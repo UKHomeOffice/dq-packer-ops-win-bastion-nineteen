@@ -35,12 +35,6 @@
         path: C:\scripts
         state: directory
 
-    - name: Copy LauchConfig json file
-      win_copy:
-        src: ./scripts/LaunchConfig.json
-        dest: C:\ProgramData\Amazon\EC2-Windows\Launch\Config\
-        remote_src: yes
-
     - name: Execute InitializeInstance script
       win_shell: |
         $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 -Schedule"
@@ -59,29 +53,29 @@
         $task = Register-ScheduledTask -TaskName "SysprepInstance" -Trigger $trigger -Action $action -Description $description -Principal $principal
         $task | Set-ScheduledTask
 
-    # - name: Install Cholocatey
-    #   win_shell: |
-    #     Set-ExecutionPolicy Bypass -Scope Process -Force
-    #     [System.Net.ServicePointManager]::SecurityProtocol = 3072
-    #     iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-    #     choco feature enable -n allowGlobalConfirmation
-    #     choco install chocolatey --version 0.11.3 --force
-    #
-    # - name: Install python2.7
-    #   win_chocolatey:
-    #     name: python2
-    #     state: present
-    #
-    # - name: Install python3
-    #   win_chocolatey:
-    #     name: python3
-    #     version: 3.7.5
-    #     state: present
-    #
-    # - name: Install python packages
-    #   win_shell: |
-    #     pip install boto3
-    #
+    - name: Install Cholocatey
+      win_shell: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [System.Net.ServicePointManager]::SecurityProtocol = 3072
+        iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+        choco feature enable -n allowGlobalConfirmation
+        choco install chocolatey --version 0.11.3 --force
+
+    - name: Install python2.7
+      win_chocolatey:
+        name: python2
+        state: present
+
+    - name: Install python3
+      win_chocolatey:
+        name: python3
+        version: 3.7.5
+        state: present
+
+    - name: Install python packages
+      win_shell: |
+        pip install boto3
+
     # - name: Install VNC viewer
     #   win_chocolatey:
     #     name: vnc-viewer
@@ -98,60 +92,60 @@
     #     version: 6.1
     #     state: present
     #
-    # - name: Download PsTools
-    #   win_shell: |
-    #     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    #     $url = "https://download.sysinternals.com/files/PSTools.zip"
-    #     $output = "C:\tmp\install\PSTools.zip"
-    #     $wc = New-Object System.Net.WebClient
-    #     $wc.DownloadFile($url, $output)
-    #
-    # - name: Unzip PsTools
-    #   win_unzip:
-    #     src: C:\tmp\install\PSTools.zip
-    #     dest: C:\PSTools\
-    #     delete_archive: yes
-    #
-    # - name: Ensure that Python2.7 / Python3.7 and PsTools are present on the global system path
-    #   win_path:
-    #     elements:
-    #     - 'C:\Python37'
-    #     - 'C:\Python27'
-    #     - 'C:\PSTools'
-    #
+    - name: Download PsTools
+      win_shell: |
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        $url = "https://download.sysinternals.com/files/PSTools.zip"
+        $output = "C:\tmp\install\PSTools.zip"
+        $wc = New-Object System.Net.WebClient
+        $wc.DownloadFile($url, $output)
+
+    - name: Unzip PsTools
+      win_unzip:
+        src: C:\tmp\install\PSTools.zip
+        dest: C:\PSTools\
+        delete_archive: yes
+
+    - name: Ensure that Python2.7 / Python3.7 and PsTools are present on the global system path
+      win_path:
+        elements:
+        - 'C:\Python37'
+        - 'C:\Python27'
+        - 'C:\PSTools'
+
     # - name: Install putty and plink
     #   win_chocolatey:
     #     name: putty
     #     state: present
     #
-    # - name: Download AWSCLI
-    #   win_shell: |
-    #     $url = "https://s3.amazonaws.com/aws-cli/AWSCLI64.msi"
-    #     $output = "C:\tmp\install\AWSCLI64.msi"
-    #     $wc = New-Object System.Net.WebClient
-    #     $wc.DownloadFile($url, $output)
-    #
-    # - name: AWS CLI install
-    #   win_package:
-    #     path: C:\tmp\install\AWSCLI64.msi
-    #     state: present
-    #
+    - name: Download AWSCLI
+      win_shell: |
+        $url = "https://s3.amazonaws.com/aws-cli/AWSCLI64.msi"
+        $output = "C:\tmp\install\AWSCLI64.msi"
+        $wc = New-Object System.Net.WebClient
+        $wc.DownloadFile($url, $output)
+
+    - name: AWS CLI install
+      win_package:
+        path: C:\tmp\install\AWSCLI64.msi
+        state: present
+
     # - name:  GET config files from S3
     #   win_shell: aws s3 cp s3://dq-config-bucket/dq-ops-win/ C:\tmp\install\ --recursive
     #   args:
     #     executable: powershell.exe
     #
-    # - name: Unzip PSSlack Powershell module
-    #   win_unzip:
-    #     src: C:\tmp\install\PSSlack-master.zip
-    #     dest: C:\scripts\
-    #
-    # - name: Install AWS Toolkit for Powershell
-    #   win_package:
-    #     path: http://sdk-for-net.amazonwebservices.com/latest/AWSToolsAndSDKForNet.msi
-    #     product_id: '{F3855CA6-073C-48B5-914A-AFD76AF2948B}'
-    #     arguments: '/q /norestart'
-    #     state: present
+    - name: Unzip PSSlack Powershell module
+      win_unzip:
+        src: C:\tmp\install\PSSlack-master.zip
+        dest: C:\scripts\
+
+    - name: Install AWS Toolkit for Powershell
+      win_package:
+        path: http://sdk-for-net.amazonwebservices.com/latest/AWSToolsAndSDKForNet.msi
+        product_id: '{F3855CA6-073C-48B5-914A-AFD76AF2948B}'
+        arguments: '/q /norestart'
+        state: present
     #
     # - name: Atom - Install
     #   win_chocolatey:
@@ -224,12 +218,18 @@
     # - name: Save CW config by restarting the Service
     #   win_shell: |
     #     Restart-Service AmazonSSMAgent
-    #
-    # - name: Copy stopped service monitoring PS script
-    #   win_copy:
-    #     src: ./scripts/monitor_stopped_win_services.ps1
-    #     dest: C:\scripts\
-    #
+
+    - name: Copy LauchConfig json file
+      win_copy:
+        src: ./scripts/LaunchConfig.json
+        dest: C:\ProgramData\Amazon\EC2-Windows\Launch\Config\
+        remote_src: yes
+
+    - name: Copy stopped service monitoring PS script
+      win_copy:
+        src: ./scripts/monitor_stopped_win_services.ps1
+        dest: C:\scripts\
+
     # - name: Copy sqlworkbench config script
     #   win_copy:
     #     src: ./scripts/pull-workbench-conf.py
