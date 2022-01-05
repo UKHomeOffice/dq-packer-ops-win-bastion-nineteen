@@ -9,26 +9,17 @@
         Set-NetFirewallProfile -Profile Domain -Enabled False
         Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
 
-    - name: Execute userdata InitialiseInstance.ps1
-      win_shell: |
-        $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 –Schedule"
-        $trigger = New-ScheduledTaskTrigger -AtStartup
-        $description = "InitialiseInstance script runs ar Start Up"
-        $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-        $task = Register-ScheduledTask -TaskName "InitialiseInstance" -Trigger $trigger -Action $action -Description $description -Principal $principal
-        $task | Set-ScheduledTask
 
-    #
-    # - name: Install AD UAC, GPM
-    #   win_shell: |
-    #     Import-Module ServerManager
-    #     Add-WindowsFeature RSAT-ADDS-Tools
-    #     Add-WindowsFeature –Name GPMC
-    #     Add-WindowsFeature -Name Telnet-Client
-    #
-    # - name: Set timezone to 'GMT Standard Time' (GMT)
-    #   win_timezone:
-    #     timezone: GMT Standard Time
+    - name: Install AD UAC, GPM
+      win_shell: |
+        Import-Module ServerManager
+        Add-WindowsFeature RSAT-ADDS-Tools
+        Add-WindowsFeature –Name GPMC
+        Add-WindowsFeature -Name Telnet-Client
+
+    - name: Set timezone to 'GMT Standard Time' (GMT)
+      win_timezone:
+        timezone: GMT Standard Time
 
     # - name: Create tmp directory
     #   win_file:
@@ -236,6 +227,24 @@
     #     src: ./misc
     #     dest: C:\
     #
+    - name: Execute InitialiseInstance.ps1
+      win_shell: |
+        $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 –Schedule"
+        $trigger = New-ScheduledTaskTrigger -AtStartup
+        $description = "InitialiseInstance script runs ar Start Up"
+        $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+        $task = Register-ScheduledTask -TaskName "InitialiseInstance" -Trigger $trigger -Action $action -Description $description -Principal $principal
+        $task | Set-ScheduledTask
+
+    - name: Execute SysprepInstance.ps1
+      win_shell: |
+        $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\SysprepInstance.ps1 -NoShutdown"
+        $trigger = New-ScheduledTaskTrigger -AtStartup
+        $description = "SysprepInstance script runs ar Start Up"
+        $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+        $task = Register-ScheduledTask -TaskName "SysprepInstance" -Trigger $trigger -Action $action -Description $description -Principal $principal
+        $task | Set-ScheduledTask
+
     # - name: Setup service monitor scheduled task
     #   win_shell: |
     #     $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass C:\scripts\monitor_win_services.ps1"
