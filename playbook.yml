@@ -9,34 +9,34 @@
         Set-NetFirewallProfile -Profile Domain -Enabled False
         Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
         C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 –Schedule
-    #
-    #
-    # - name: Install AD UAC, GPM
-    #   win_shell: |
-    #     Import-Module ServerManager
-    #     Add-WindowsFeature RSAT-ADDS-Tools
-    #     Add-WindowsFeature –Name GPMC
-    #     Add-WindowsFeature -Name Telnet-Client
-    #
-    # - name: Set timezone to 'GMT Standard Time' (GMT)
-    #   win_timezone:
-    #     timezone: GMT Standard Time
-    #
-    # - name: Create tmp directory
-    #   win_file:
-    #     path: C:\tmp\install
-    #     state: directory
-    #
-    # - name: Create PSTools directory
-    #   win_file:
-    #     path: C:\PSTools
-    #     state: directory
-    #
-    # - name: Create scripts directory
-    #   win_file:
-    #     path: C:\scripts
-    #     state: directory
-    #
+    
+
+    - name: Install AD UAC, GPM
+      win_shell: |
+        Import-Module ServerManager
+        Add-WindowsFeature RSAT-ADDS-Tools
+        Add-WindowsFeature –Name GPMC
+        Add-WindowsFeature -Name Telnet-Client
+
+    - name: Set timezone to 'GMT Standard Time' (GMT)
+      win_timezone:
+        timezone: GMT Standard Time
+
+    - name: Create tmp directory
+      win_file:
+        path: C:\tmp\install
+        state: directory
+
+    - name: Create PSTools directory
+      win_file:
+        path: C:\PSTools
+        state: directory
+
+    - name: Create scripts directory
+      win_file:
+        path: C:\scripts
+        state: directory
+
     - name: Install Cholocatey
       win_shell: |
         Set-ExecutionPolicy Bypass -Scope Process -Force
