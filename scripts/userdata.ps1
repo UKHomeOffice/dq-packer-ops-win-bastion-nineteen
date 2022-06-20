@@ -79,15 +79,4 @@ $Shortcut.TargetPath = $SourceFileLocation
 $Shortcut.Save()
 Write-Host 'pgAdmin4 Shortcut created! Click on pgAdmin 4 Folder to initialize shortcut!'
 
-Write-Host 'Join System to the DQ domain'
-$joiner_pw = (Get-SSMParameter -Name "AD_AdminPasswordd" -WithDecryption $True).Value
-$domain = 'dq.homeoffice.gov.uk'
-$username = 'dq\domain_joiner'
-$password = ConvertTo-SecureString $joiner_pw -AsPlainText -Force
-$credential = New-Object System.Management.Automation.PSCredential($username,$password)
-
-Rename-Computer -NewName $bastion
-sleep 20
-Add-Computer -DomainName $domain -Options JoinWithNewName,AccountCreate -Credential $credential -restart -force
-
 Stop-Transcript
