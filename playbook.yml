@@ -9,7 +9,7 @@
         Set-NetFirewallProfile -Profile Domain -Enabled False
         Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
         C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 –Schedule
-    
+
 
     - name: Install AD UAC, GPM
       win_shell: |
@@ -198,9 +198,9 @@
         dest: C:\Program Files\Amazon\SSM\Plugins\awsCloudWatch
         delete_archive: yes
 
-    - name: Save CW config by restarting the Service
-      win_shell: |
-        Restart-Service AmazonSSMAgent
+    # - name: Save CW config by restarting the Service
+    #   win_shell: |
+    #     Restart-Service AmazonSSMAgent
 
     - name: Copy stopped service monitoring PS script
       win_copy:
