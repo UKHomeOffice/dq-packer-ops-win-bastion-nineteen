@@ -9,71 +9,70 @@
         Set-NetFirewallProfile -Profile Domain -Enabled False
         Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
         C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 –Schedule
-
-
-    - name: Install AD UAC, GPM
-      win_shell: |
-        Import-Module ServerManager
-        Add-WindowsFeature RSAT-ADDS-Tools
-        Add-WindowsFeature –Name GPMC
-        Add-WindowsFeature -Name Telnet-Client
-
-    - name: Set timezone to 'GMT Standard Time' (GMT)
-      win_timezone:
-        timezone: GMT Standard Time
-
-    - name: Create tmp directory
-      win_file:
-        path: C:\tmp\install
-        state: directory
-
-    - name: Create PSTools directory
-      win_file:
-        path: C:\PSTools
-        state: directory
-
-    - name: Create scripts directory
-      win_file:
-        path: C:\scripts
-        state: directory
-
-    - name: Install Cholocatey
-      win_shell: |
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-        [System.Net.ServicePointManager]::SecurityProtocol = 3072
-        iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-        choco feature enable -n allowGlobalConfirmation
-        choco install chocolatey --version 0.11.3 --force
-
-    - name: Install python2.7
-      win_chocolatey:
-        name: python2
-        state: present
-
-    - name: Install python3
-      win_chocolatey:
-        name: python3
-        version: 3.7.5
-        state: present
-
-    - name: Install python packages
-      win_shell: |
-        pip install boto3
-
-    - name: Install VNC viewer
-      win_chocolatey:
-        name: vnc-viewer
-        state: present
-
-    - name: Install Google Chrome
-      win_chocolatey:
-        name: googlechrome
-        state: present
+    # 
+    #
+    # - name: Install AD UAC, GPM
+    #   win_shell: |
+    #     Import-Module ServerManager
+    #     Add-WindowsFeature RSAT-ADDS-Tools
+    #     Add-WindowsFeature –Name GPMC
+    #     Add-WindowsFeature -Name Telnet-Client
+    #
+    # - name: Set timezone to 'GMT Standard Time' (GMT)
+    #   win_timezone:
+    #     timezone: GMT Standard Time
+    #
+    # - name: Create tmp directory
+    #   win_file:
+    #     path: C:\tmp\install
+    #     state: directory
+    #
+    # - name: Create PSTools directory
+    #   win_file:
+    #     path: C:\PSTools
+    #     state: directory
+    #
+    # - name: Create scripts directory
+    #   win_file:
+    #     path: C:\scripts
+    #     state: directory
+    #
+    # - name: Install Cholocatey
+    #   win_shell: |
+    #     Set-ExecutionPolicy Bypass -Scope Process -Force
+    #     [System.Net.ServicePointManager]::SecurityProtocol = 3072
+    #     iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+    #     choco feature enable -n allowGlobalConfirmation
+    #     choco install chocolatey --version 0.11.3 --force
+    #
+    # - name: Install python2.7
+    #   win_chocolatey:
+    #     name: python2
+    #     state: present
+    #
+    # - name: Install python3
+    #   win_chocolatey:
+    #     name: python3
+    #     version: 3.9.0
+    #     state: present
+    #
+    # - name: Install python packages
+    #   win_shell: |
+    #     pip install boto3
+    #
+    # - name: Install VNC viewer
+    #   win_chocolatey:
+    #     name: vnc-viewer
+    #     state: present
+    #
+    # - name: Install Google Chrome
+    #   win_chocolatey:
+    #     name: googlechrome
+    #     state: present
 
     - name: Install pgadmin4
       win_chocolatey:
         name: pgadmin4
-        version: 6.1
         state: present
 
     - name: Download PsTools
@@ -90,10 +89,10 @@
         dest: C:\PSTools\
         delete_archive: yes
 
-    - name: Ensure that Python2.7 / Python3.7 and PsTools are present on the global system path
+    - name: Ensure that Python2.7 / Python3.9 and PsTools are present on the global system path
       win_path:
         elements:
-        - 'C:\Python37'
+        - 'C:\Python39'
         - 'C:\Python27'
         - 'C:\PSTools'
 
@@ -259,7 +258,7 @@
 
     - name: Setup sqlworkbench scheduled task
       win_shell: |
-        $action = New-ScheduledTaskAction -Execute "C:\Python37\python.exe" -Argument "C:\scripts\pull-workbench-conf.py"
+        $action = New-ScheduledTaskAction -Execute "C:\Python39\python.exe" -Argument "C:\scripts\pull-workbench-conf.py"
         $trigger = New-ScheduledTaskTrigger -Daily -At (Get-Date)
         $description = "Run sqlworkbench config puller task every 30min"
         $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
