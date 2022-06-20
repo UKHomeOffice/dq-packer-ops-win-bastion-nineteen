@@ -56,7 +56,7 @@
       "type": "powershell",
       "scripts": [
           "./scripts/disable-esc-and-uac.ps1",
-          "./scripts/SysprepInstance.ps1"
+          "./scripts/win-updates.ps1"
       ]
     }
   ]
