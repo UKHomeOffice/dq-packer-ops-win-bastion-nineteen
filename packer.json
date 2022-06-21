@@ -55,7 +55,8 @@
     {
       "type": "powershell",
       "scripts": [
-          "./scripts/disable-esc-and-uac.ps1"
+          "./scripts/disable-esc-and-uac.ps1",
+          "./scripts/sysprep-bundleconfig.ps1"
       ]
     }
   ]
