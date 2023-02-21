@@ -10,17 +10,7 @@
       "secret_key": "{{user `secret_key`}}",
       "region": "eu-west-2",
       "iam_instance_profile": "packer_builder",
-      "source_ami_filter": {
-        "filters": {
-          "virtualization-type": "hvm",
-          "name": "Windows_Server-2019-English-Full-Base-*",
-          "root-device-type": "ebs"
-        },
-        "owners": [
-          "801119661308"
-        ],
-        "most_recent": true
-      },
+      "source_ami": "ami-09c40e0b3abfb4f8b",
       "launch_block_device_mappings": [
         {
           "device_name": "/dev/sda1",
