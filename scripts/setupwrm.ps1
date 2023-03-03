@@ -3,6 +3,11 @@
 write-output "Running User Data Script"
 write-host "(host) Running User Data Script"
 
+# Create username and password
+net user Administrator SuperS3cr3t!!!
+wmic useraccount where "name='Administrator'" set PasswordExpires=FALSE
+
+
 Set-ExecutionPolicy Unrestricted -Scope LocalMachine -Force -ErrorAction Ignore
 
 # Don't set this before Set-ExecutionPolicy as it throws an error
