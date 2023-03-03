@@ -8,7 +8,7 @@
       win_shell: |
         Set-NetFirewallProfile -Profile Domain -Enabled False
         Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
-
+   
 
     - name: Install AD UAC, GPM
       win_shell: |
@@ -16,6 +16,7 @@
         Add-WindowsFeature RSAT-ADDS-Tools
         Add-WindowsFeature –Name GPMC
         Add-WindowsFeature -Name Telnet-Client
+        Install-Module -Name PSSlack -RequiredVersion 1.0.2
 
     - name: Set timezone to 'GMT Standard Time' (GMT)
       win_shell: |
@@ -88,10 +89,10 @@
       args:
         executable: powershell.exe
 
-    #- name: Unzip PSSlack Powershell module
-    #  win_unzip:
-    #    src: C:\tmp\install\PSSlack-master.zip
-    #    dest: C:\scripts\
+    - name: Unzip PSSlack Powershell module
+      win_unzip:
+        src: C:\tmp\install\PSSlack-master.zip
+        dest: C:\scripts\
 
     - name: Install AWS Toolkit for Powershell
       win_package:
@@ -101,47 +102,47 @@
         state: present
 
 
-    #- name: Atom - Move install to Program Files
-    #  win_copy:
-    #    src: 'C:\Users\Administrator\AppData\Local\atom'
-    #    dest: 'C:\Program Files (x86)'
-    #    remote_src: True
+    - name: Atom - Move install to Program Files
+      win_copy:
+        src: 'C:\Users\Administrator\AppData\Local\atom'
+        dest: 'C:\Program Files (x86)'
+        remote_src: True
 
-    #- name: Atom - Create shortcut for all users (Public Desktop)
-    #  win_shortcut:
-    #    src: 'C:\Program Files (x86)\atom\atom.exe'
-    #    dest: 'C:\Users\Public\Desktop\Atom.lnk'
-    #    icon: 'C:\Program Files (x86)\atom\atom.exe'
+    - name: Atom - Create shortcut for all users (Public Desktop)
+      win_shortcut:
+        src: 'C:\Program Files (x86)\atom\atom.exe'
+        dest: 'C:\Users\Public\Desktop\Atom.lnk'
+        icon: 'C:\Program Files (x86)\atom\atom.exe'
 
-    #- name: Atom - Remove OLD installation directory (cleanup)
-    #  win_file:
-    #    path: 'C:\Users\Administrator\AppData\Local\atom'
-    #    state: absent
+    - name: Atom - Remove OLD installation directory (cleanup)
+      win_file:
+        path: 'C:\Users\Administrator\AppData\Local\atom'
+        state: absent
 
-    #- name: Notpad++ - Create shortcut for all users (Public Desktop)
-    #  win_shortcut:
-    #    src: 'C:\Program Files\Notepad++\notepad++.exe'
-    #    dest: 'C:\Users\Public\Desktop\Notepad++.lnk'
-    #    icon: 'C:\Program Files\Notepad++\notepad++.exe'
+    - name: Notpad++ - Create shortcut for all users (Public Desktop)
+      win_shortcut:
+        src: 'C:\Program Files\Notepad++\notepad++.exe'
+        dest: 'C:\Users\Public\Desktop\Notepad++.lnk'
+        icon: 'C:\Program Files\Notepad++\notepad++.exe'
 
-    #- win_file:
-    #    path: C:\Users\Public\Desktop\SQLWorkbench
-    #    state: directory
-    #- win_shortcut:
-    #    src: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
-    #    dest: 'C:\Users\Public\Desktop\SQLWorkbench\SQLWorkbench.lnk'
-    #    args: -configDir=C:\Users\Public\.sqlworkbench
-    #    icon: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
+    - win_file:
+        path: C:\Users\Public\Desktop\SQLWorkbench
+        state: directory
+    - win_shortcut:
+        src: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
+        dest: 'C:\Users\Public\Desktop\SQLWorkbench\SQLWorkbench.lnk'
+        args: -configDir=C:\Users\Public\.sqlworkbench
+        icon: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
 
-    #- name: Download Athena JDBC Driver
-    #  win_get_url:
-    #    url: https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC-2.0.23.1000/AthenaJDBC42.jar
-    #    dest: C:\Users\Public\Desktop\SQLWorkbench\
+    - name: Download Athena JDBC Driver
+      win_get_url:
+        url: https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC-2.0.23.1000/AthenaJDBC42.jar
+        dest: C:\Users\Public\Desktop\SQLWorkbench\
 
-    #- name: Download PostgreSQL JDBC Driver
-    #  win_get_url:
-    #    url: https://jdbc.postgresql.org/download/postgresql-42.2.14.jar
-    #    dest: C:\Users\Public\Desktop\SQLWorkbench\
+    - name: Download PostgreSQL JDBC Driver
+      win_get_url:
+        url: https://jdbc.postgresql.org/download/postgresql-42.2.14.jar
+        dest: C:\Users\Public\Desktop\SQLWorkbench\
 
     - name: Download SQL Management studio
       win_shell: |
@@ -154,16 +155,16 @@
       win_shell: |
         C:\tmp\install\SSMS-Setup-ENU.exe /install /quiet /norestart
 
-    #- name: Unzip Cloudwatch config file
-    #  win_unzip:
-    #    src: C:\tmp\install\AWS.EC2.Windows.Cloudwatch.json.zip
-    #    dest: C:\Program Files\Amazon\SSM\Plugins\awsCloudWatch
-    #    delete_archive: yes
-    #
-    # # - name: Save CW config by restarting the Service
-    # #   win_shell: |
-    # #     Restart-Service AmazonSSMAgent
-    #
+    - name: Unzip Cloudwatch config file
+      win_unzip:
+        src: C:\tmp\install\AWS.EC2.Windows.Cloudwatch.json.zip
+        dest: C:\Program Files\Amazon\SSM\Plugins\awsCloudWatch
+        delete_archive: yes
+    
+   # # - name: Save CW config by restarting the Service
+   # #   win_shell: |
+   # #     Restart-Service AmazonSSMAgent
+   
     - name: Copy stopped service monitoring PS script
       win_copy:
         src: ./scripts/monitor_stopped_win_services.ps1
