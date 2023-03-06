@@ -12,7 +12,7 @@
 
     - name: Install AD UAC, GPM
       win_shell: |
-        Install-PackageProvider -Name NuGet 
+        Install-PackageProvider -Name NuGet -RequiredVersion 2.8.5.201 -Force
         Import-Module ServerManager
         Add-WindowsFeature RSAT-ADDS-Tools
         Add-WindowsFeature –Name GPMC
