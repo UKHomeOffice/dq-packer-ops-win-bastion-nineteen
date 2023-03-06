@@ -35,6 +35,13 @@
   ],
   "provisioners": [
     {
+      "type": "powershell",
+      "scripts": [
+          "C:/ProgramData/Amazon/EC2-Windows/Launch/Scripts/InitializeInstance.ps1 -Schedule",
+          "C:/ProgramData/Amazon/EC2-Windows/Launch/Scripts/SysprepInstance.ps1 -NoShutdown",
+      ]
+    },
+    {
       "type": "ansible",
       "playbook_file": "./playbook.yml",
       "ansible_env_vars": [ "ANSIBLE_HOST_KEY_CHECKING=False", "ANSIBLE_SSH_ARGS='-o ControlMaster=auto -o ControlPersist=60s -o ControlPath=/dev/shm/cp%%h-%%p-%%r'", "ANSIBLE_NOCOLOR=True", "ANSIBLE_TIMEOUT=30" ],
