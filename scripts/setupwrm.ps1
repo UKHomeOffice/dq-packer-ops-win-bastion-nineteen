@@ -4,7 +4,6 @@ write-output "Running User Data Script"
 write-host "(host) Running User Data Script"
 
 # Create username and password
-net user Administrator SuperS3cr3t!!!
 wmic useraccount where "name='Administrator'" set PasswordExpires=FALSE
 
 
