@@ -52,8 +52,9 @@
     {
       "type": "powershell",
       "inline": [
-        "Write-Output 'Running Sysprep...'",
-        "C:\\Windows\\System32\\Sysprep\\Sysprep.exe /generalize /oobe /shutdown /quiet /unattend:C:\\sysprep\\unattend.xml"
+      "Set-Location $env:programfiles/amazon/ec2launch",
+      "./ec2launch.exe reset -c -b",
+      "./ec2launch.exe sysprep -c -b"
       ]
     }
   ]
