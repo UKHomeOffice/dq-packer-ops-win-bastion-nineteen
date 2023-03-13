@@ -8,15 +8,16 @@
       win_shell: |
         Set-NetFirewallProfile -Profile Domain -Enabled False
         Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
-        C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 -Schedule
-
+   
 
     - name: Install AD UAC, GPM
       win_shell: |
+        Install-PackageProvider -Name NuGet -RequiredVersion 2.8.5.201 -Force
         Import-Module ServerManager
         Add-WindowsFeature RSAT-ADDS-Tools
         Add-WindowsFeature –Name GPMC
         Add-WindowsFeature -Name Telnet-Client
+        Install-Module -Name PSSlack -RequiredVersion 1.0.2
 
     - name: Set timezone to 'GMT Standard Time' (GMT)
       win_shell: |
@@ -160,11 +161,11 @@
         src: C:\tmp\install\AWS.EC2.Windows.Cloudwatch.json.zip
         dest: C:\Program Files\Amazon\SSM\Plugins\awsCloudWatch
         delete_archive: yes
-    #
-    # # - name: Save CW config by restarting the Service
-    # #   win_shell: |
-    # #     Restart-Service AmazonSSMAgent
-    #
+    
+   # # - name: Save CW config by restarting the Service
+   # #   win_shell: |
+   # #     Restart-Service AmazonSSMAgent
+   
     - name: Copy stopped service monitoring PS script
       win_copy:
         src: ./scripts/monitor_stopped_win_services.ps1

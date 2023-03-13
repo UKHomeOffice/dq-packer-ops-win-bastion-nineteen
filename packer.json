@@ -10,17 +10,7 @@
       "secret_key": "{{user `secret_key`}}",
       "region": "eu-west-2",
       "iam_instance_profile": "packer_builder",
-      "source_ami_filter": {
-        "filters": {
-          "virtualization-type": "hvm",
-          "name": "Windows_Server-2019-English-Full-Base-*",
-          "root-device-type": "ebs"
-        },
-        "owners": [
-          "801119661308"
-        ],
-        "most_recent": true
-      },
+      "source_ami": "ami-064033e89c375320c",
       "launch_block_device_mappings": [
         {
           "device_name": "/dev/sda1",
@@ -33,6 +23,7 @@
       "winrm_username": "Administrator",
       "winrm_use_ssl": true,
       "winrm_insecure": true,
+      "winrm_port": 5986,
       "user_data_file": "./scripts/setupwrm.ps1",
       "instance_type": "t3.medium",
       "ami_name": "dq-ops-win-nineteen-bastion-{{isotime | clean_ami_name}}",
@@ -56,6 +47,14 @@
       "type": "powershell",
       "scripts": [
           "./scripts/disable-esc-and-uac.ps1"
+      ]
+    },
+    {
+      "type": "powershell",
+      "inline": [
+      "Set-Location $env:programfiles/amazon/ec2launch",
+      "./ec2launch.exe reset -c -b",
+      "./ec2launch.exe sysprep -c -b"
       ]
     }
   ]
