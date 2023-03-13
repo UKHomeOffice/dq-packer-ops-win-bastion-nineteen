@@ -9,21 +9,21 @@ platform:
 steps:
 - name: validate
   pull: if-not-exists
-  image: quay.io/ukhomeofficedigital/dq-packer-ansible
+  image: quay.io/ukhomeofficedigital/dq-packer-ansible:dev-43
   commands:
   - export HOME=/home/packer
   - packer validate packer.json
 
 - name: inspect
   pull: if-not-exists
-  image: quay.io/ukhomeofficedigital/dq-packer-ansible
+  image: quay.io/ukhomeofficedigital/dq-packer-ansible:dev-43
   commands:
   - export HOME=/home/packer
   - packer inspect packer.json
 
 - name: build
   pull: if-not-exists
-  image: quay.io/ukhomeofficedigital/dq-packer-ansible
+  image: quay.io/ukhomeofficedigital/dq-packer-ansible:dev-43
   commands:
   - export HOME=/home/packer
   - packer build packer.json
