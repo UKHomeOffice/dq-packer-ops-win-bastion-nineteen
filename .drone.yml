@@ -1,4 +1,8 @@
 ---
+global-variables:
+  packer-image: &packer-image quay.io/ukhomeofficedigital/dq-packer-ansible:dev-43
+  copy-image: &copy-image quay.io/ukhomeofficedigital/dq-packer-encrypt-copy
+
 kind: pipeline
 name: default
 type: kubernetes
@@ -9,21 +13,21 @@ platform:
 steps:
 - name: validate
   pull: if-not-exists
-  image: quay.io/ukhomeofficedigital/dq-packer-ansible:dev-43
+  image: *packer-image
   commands:
   - export HOME=/home/packer
   - packer validate packer.json
 
 - name: inspect
   pull: if-not-exists
-  image: quay.io/ukhomeofficedigital/dq-packer-ansible
+  image: *packer-image
   commands:
   - export HOME=/home/packer
   - packer inspect packer.json
 
 - name: build
   pull: if-not-exists
-  image: quay.io/ukhomeofficedigital/dq-packer-ansible
+  image: quay.io/ukhomeofficedigital/dq-packer-ansible:dev-43
   commands:
   - export HOME=/home/packer
   - packer build packer.json
@@ -38,7 +42,7 @@ steps:
 
 - name: packer-copy-notprod
   pull: if-not-exists
-  image: quay.io/ukhomeofficedigital/dq-packer-encrypt-copy
+  image: *copy-image
   commands:
   - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win*""
   - export aws_id=$${NOTPROD_ACC_ID}
@@ -58,7 +62,7 @@ steps:
 
 - name: packer-copy-prod
   pull: if-not-exists
-  image: quay.io/ukhomeofficedigital/dq-packer-encrypt-copy
+  image: *copy-image
   commands:
   - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win*""
   - export aws_id=$${PROD_ACC_ID}
