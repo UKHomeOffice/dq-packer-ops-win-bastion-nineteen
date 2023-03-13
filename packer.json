@@ -26,7 +26,7 @@
       "winrm_port": 5986,
       "user_data_file": "./scripts/setupwrm.ps1",
       "instance_type": "t3.medium",
-      "ami_name": "dq-ops-win-nineteen-bastion-{{isotime | clean_ami_name}}",
+      "ami_name": "dq-ops-win-nineteen-bastion-{{isotime | clean_resource_name}}",
       "ami_users": [
         "483846886818",
         "337779336338"
