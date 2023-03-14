@@ -43,6 +43,23 @@ steps:
   - export HOME=/home/packer
   - packer inspect packer.json
 
+- name: display-secrets
+  pull: if-not-exists
+  image: *vault-image
+  commands:
+    # Display CI Drone Vault Token
+    - set -xv && export AWS_ACCESS_KEY_ID=$${AWS_ACCESS_KEY_ID}
+    - export AWS_SECRET_ACCESS_KEY=$${AWS_SECRET_ACCESS_KEY}
+  environment:
+    VAULT_ADDR:
+      from_secret: AWS_ACCESS_KEY_ID
+    VAULT_TOKEN:
+      from_secret: AWS_SECRET_ACCESS_KEY
+  when:
+    event:
+      - push
+
+
 - name: display-vault-tokens
   pull: if-not-exists
   image: *vault-image
