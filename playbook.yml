@@ -102,11 +102,24 @@
         arguments: '/q /norestart'
         state: present
 
+    - name: Download Atom from sourceforge
+      win_shell: |
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        $url = "https://sourceforge.net/projects/atom.mirror/files/v1.60.0/atom-x64-windows.zip"
+        $output = "C:\tmp\install\atom-x64-windows.zip"
+        $wc = New-Object System.Net.WebClient
+        $wc.DownloadFile($url, $output)
+
+    - name: Unzip Atom
+      win_unzip:
+        src: C:\tmp\install\atom-x64-windows.zip
+        dest: C:\Users\Administrator\AppData\Local\atom
+        delete_archive: yes
 
     - name: Atom - Move install to Program Files
       win_copy:
-        src: 'C:\Users\Administrator\AppData\Local\atom'
-        dest: 'C:\Program Files (x86)'
+        src: 'C:\Users\Administrator\AppData\Local\atom\Atom x64'
+        dest: 'C:\Program Files (x86)\atom'
         remote_src: True
 
     - name: Atom - Create shortcut for all users (Public Desktop)
@@ -119,6 +132,14 @@
       win_file:
         path: 'C:\Users\Administrator\AppData\Local\atom'
         state: absent
+
+    - name: Download Notepad++ using win shell
+      win_shell: |
+        $LocalTempDir = "C:\tmp\install"
+        $href = ((Invoke-WebRequest -Uri 'https://notepad-plus-plus.org/downloads/').Links | Where-Object { $_.innerText -match 'current version' }).href
+        $downloadUrl = ((Invoke-WebRequest "https://notepad-plus-plus.org/$href").Links | Where-Object { $_.innerHTML -match 'installer' -and $_.href -match 'x64.exe' }).href
+        Invoke-RestMethod $downloadUrl -OutFile "$LocalTempDir/np++.exe"
+        start-process -FilePath "$LocalTempDir\np++.exe" -ArgumentList '/S' -Verb runas -Wait
 
     - name: Notpad++ - Create shortcut for all users (Public Desktop)
       win_shortcut:
