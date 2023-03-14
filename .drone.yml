@@ -48,9 +48,10 @@ steps:
   image: *vault-image
   commands:
     # Display CI Drone Vault Token
-    - set -xv && export AWS_ACCESS_KEY_ID=$${AWS_ACCESS_KEY_ID}
+    - set -xv
+    - export AWS_ACCESS_KEY_ID=$${AWS_ACCESS_KEY_ID}
     - export AWS_SECRET_ACCESS_KEY=$${AWS_SECRET_ACCESS_KEY}
-    - set -xv && export NOTPROD_ACC_ID=$${NOTPROD_ACC_ID}
+    - export NOTPROD_ACC_ID=$${NOTPROD_ACC_ID}
     - export NOTPROD_ACC_KEY=$${NOTPROD_ACC_KEY}
   environment:
     AWS_ACCESS_KEY_ID:
