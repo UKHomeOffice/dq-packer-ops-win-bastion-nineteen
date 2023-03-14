@@ -43,55 +43,55 @@ steps:
   - export HOME=/home/packer
   - packer inspect packer.json
 
-- name: display-secrets
-  pull: if-not-exists
-  image: *vault-image
-  commands:
-    # Display CI Drone Vault Token
-    - set -xv
-    - export AWS_ACCESS_KEY_ID=$${AWS_ACCESS_KEY_ID}
-    - export AWS_SECRET_ACCESS_KEY=$${AWS_SECRET_ACCESS_KEY}
-    - export NOTPROD_ACC_ID=$${NOTPROD_ACC_ID}
-    - export NOTPROD_ACC_KEY=$${NOTPROD_ACC_KEY}
-    - export VAULT_ADDR_EXPORT=$${VAULT_ADDR_IN_DRONE}
-    - export VAULT_TOKEN_EXPORT=$${VAULT_TOKEN_IN_DRONE}
-  environment:
-    AWS_ACCESS_KEY_ID:
-      from_secret: AWS_ACCESS_KEY_ID
-    AWS_SECRET_ACCESS_KEY:
-      from_secret: AWS_SECRET_ACCESS_KEY
-    NOTPROD_ACC_ID:
-      from_secret: NOTPROD_ACC_ID
-    NOTPROD_ACC_KEY:
-      from_secret: NOTPROD_ACC_KEY
-    VAULT_ADDR_IN_DRONE:
-      from_secret: VAULT_ADDR_SIT
-    VAULT_TOKEN_IN_DRONE:
-      from_secret: VAULT_TOKEN_SIT
-  when:
-    event:
-      - push
-
-
-- name: display-vault-tokens
-  pull: if-not-exists
-  image: *vault-image
-  commands:
-    # Display CI Drone Vault Token
-    - set -xv
-    - export VAULT_ADDR_EXPORT=$${VAULT_ADDR_IN_DRONE}
-    - export VAULT_TOKEN_EXPORT=$${VAULT_TOKEN_IN_DRONE}
-    - vault token renew > /dev/null
-    - export VAULT_ADDR_EXPORT=$${VAULT_ADDR_IN_DRONE}
-    - export VAULT_TOKEN_EXPORT=$${VAULT_TOKEN_IN_DRONE}
-  environment:
-    VAULT_ADDR_IN_DRONE:
-      from_secret: VAULT_ADDR_SIT
-    VAULT_TOKEN_IN_DRONE:
-      from_secret: VAULT_TOKEN_SIT
-  when:
-    event:
-      - push
+#- name: display-secrets
+#  pull: if-not-exists
+#  image: *vault-image
+#  commands:
+#    # Display CI Drone Vault Token
+#    - set -xv
+#    - export AWS_ACCESS_KEY_ID=$${AWS_ACCESS_KEY_ID}
+#    - export AWS_SECRET_ACCESS_KEY=$${AWS_SECRET_ACCESS_KEY}
+#    - export NOTPROD_ACC_ID=$${NOTPROD_ACC_ID}
+#    - export NOTPROD_ACC_KEY=$${NOTPROD_ACC_KEY}
+#    - export VAULT_ADDR_EXPORT=$${VAULT_ADDR_IN_DRONE}
+#    - export VAULT_TOKEN_EXPORT=$${VAULT_TOKEN_IN_DRONE}
+#  environment:
+#    AWS_ACCESS_KEY_ID:
+#      from_secret: AWS_ACCESS_KEY_ID
+#    AWS_SECRET_ACCESS_KEY:
+#      from_secret: AWS_SECRET_ACCESS_KEY
+#    NOTPROD_ACC_ID:
+#      from_secret: NOTPROD_ACC_ID
+#    NOTPROD_ACC_KEY:
+#      from_secret: NOTPROD_ACC_KEY
+#    VAULT_ADDR_IN_DRONE:
+#      from_secret: VAULT_ADDR_SIT
+#    VAULT_TOKEN_IN_DRONE:
+#      from_secret: VAULT_TOKEN_SIT
+#  when:
+#    event:
+#      - push
+#
+#
+#- name: display-vault-tokens
+#  pull: if-not-exists
+#  image: *vault-image
+#  commands:
+#    # Display CI Drone Vault Token
+#    - set -xv
+#    - export VAULT_ADDR_EXPORT=$${VAULT_ADDR_IN_DRONE}
+#    - export VAULT_TOKEN_EXPORT=$${VAULT_TOKEN_IN_DRONE}
+#    - vault token renew > /dev/null
+#    - export VAULT_ADDR_EXPORT=$${VAULT_ADDR_IN_DRONE}
+#    - export VAULT_TOKEN_EXPORT=$${VAULT_TOKEN_IN_DRONE}
+#  environment:
+#    VAULT_ADDR_IN_DRONE:
+#      from_secret: VAULT_ADDR_SIT
+#    VAULT_TOKEN_IN_DRONE:
+#      from_secret: VAULT_TOKEN_SIT
+#  when:
+#    event:
+#      - push
 
 - name: retrieve_aws_secrets_ci
   pull: if-not-exists
