@@ -1,6 +1,6 @@
 ---
 
-- name: Build Windows server.
+- name: Build Windows server
   hosts: all
   gather_facts: false
   tasks:
