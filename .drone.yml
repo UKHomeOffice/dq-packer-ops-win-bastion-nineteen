@@ -50,11 +50,17 @@ steps:
     # Display CI Drone Vault Token
     - set -xv && export AWS_ACCESS_KEY_ID=$${AWS_ACCESS_KEY_ID}
     - export AWS_SECRET_ACCESS_KEY=$${AWS_SECRET_ACCESS_KEY}
+    - set -xv && export NOTPROD_ACC_ID=$${NOTPROD_ACC_ID}
+    - export NOTPROD_ACC_KEY=$${NOTPROD_ACC_KEY}
   environment:
-    VAULT_ADDR:
+    AWS_ACCESS_KEY_ID:
       from_secret: AWS_ACCESS_KEY_ID
-    VAULT_TOKEN:
+    AWS_SECRET_ACCESS_KEY:
       from_secret: AWS_SECRET_ACCESS_KEY
+    NOTPROD_ACC_ID:
+      from_secret: NOTPROD_ACC_ID
+    NOTPROD_ACC_KEY:
+      from_secret: NOTPROD_ACC_KEY
   when:
     event:
       - push
