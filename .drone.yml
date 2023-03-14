@@ -58,9 +58,7 @@ steps:
       from_secret: VAULT_TOKEN_SIT
   when:
     event:
-      - cron
-    cron:
-      - renew-vault-tokens
+      - push
 
 
 - name: retrieve_aws_secrets_ci
