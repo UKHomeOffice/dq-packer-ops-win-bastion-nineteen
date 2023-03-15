@@ -25,6 +25,7 @@
       "winrm_use_ssl": true,
       "winrm_insecure": true,
       "winrm_port": 5986,
+      "ansible_winrm_server_cert_validation": "ignore",
       "user_data_file": "./scripts/setupwrm.ps1",
       "instance_type": "t3.medium",
       "ami_name": "dq-ops-win-nineteen-bastion-{{user `drone_build_number`}}",
