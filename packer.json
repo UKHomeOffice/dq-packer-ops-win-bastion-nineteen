@@ -1,7 +1,8 @@
 {
   "variables": {
     "access_key": "{{env `AWS_ACCESS_KEY_ID`}}",
-    "secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}"
+    "secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}",
+    "drone_build_number": "{{env `DRONE_BUILD_NUMBER`}}"
   },
   "builders": [
     {
@@ -26,7 +27,7 @@
       "winrm_port": 5986,
       "user_data_file": "./scripts/setupwrm.ps1",
       "instance_type": "t3.medium",
-      "ami_name": "dq-ops-win-nineteen-bastion-{{isotime | clean_resource_name}}",
+      "ami_name": "dq-ops-win-nineteen-bastion-{{user `drone_build_number`}}",
       "ami_users": [
         "483846886818",
         "337779336338"
