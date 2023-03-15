@@ -8,7 +8,6 @@
       win_shell: |
         Set-NetFirewallProfile -Profile Domain -Enabled False
         Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
-   
 
     - name: Install AD UAC, GPM
       win_shell: |
