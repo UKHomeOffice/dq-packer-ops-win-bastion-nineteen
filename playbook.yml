@@ -4,13 +4,10 @@
   hosts: all
   gather_facts: false
   tasks:
-    - name: Firewall Profile
-      win_command:
-        cmd: Set-NetFirewallProfile -Profile Domain -Enabled False
-
-    - name: Firewall Rule
-      win_command:
-        cmd: Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
+    - name: Firewall Profile and Rules
+      win_shell: |
+        Set-NetFirewallProfile -Profile Domain -Enabled False
+        Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
 
 #    - name: Install AD UAC, GPM
 #      win_shell: |
