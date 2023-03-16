@@ -233,7 +233,7 @@
         $task | Set-ScheduledTask
 
     - name: Add entries into Windows hosts file
-      win_blockinfile:
+      blockinfile:
         path: C:\Windows\System32\drivers\etc\hosts
         block: |
           10.1.12.111 analysis.notprod.dq.homeoffice.gov.uk www.analysis.notprod.dq.homeoffice.gov.uk
