@@ -49,13 +49,8 @@
         "-vvv",
         "-e",
         "ansible_winrm_server_cert_validation=ignore",
-        "--extra-vars",
-        "ansible_shell_type=powershell",
-        "ansible_shell_executable=None",
-        "--ssh-extra-args",
-        "-o IdentitiesOnly=yes",
-        "-o 'HostKeyAlgorithms=+ssh-rsa'",
-        "-o 'PubkeyAcceptedAlgorithms=+ssh-rsa'"
+        "--extra-vars", "ansible_shell_type=powershell ansible_shell_executable=None",
+        "--ssh-extra-args", "-o IdentitiesOnly=yes -o 'HostKeyAlgorithms=+ssh-rsa' -o 'PubkeyAcceptedAlgorithms=+ssh-rsa'"
       ]
     },
     {
