@@ -45,7 +45,6 @@
         choco install pgadmin4
         choco install putty
         choco install notepadplusplus
-        choco install atom
         choco install git
         choco install sql-workbench --ignore-checksums
         C:\Python39\python.exe -m pip install --upgrade pip
