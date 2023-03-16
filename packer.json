@@ -56,7 +56,6 @@
       "user": "Administrator",
       "use_proxy": false,
       "extra_arguments": [
-        "-vvv",
         "-e",
         "ansible_winrm_server_cert_validation=ignore",
         "--extra-vars", "ansible_shell_type=powershell ansible_shell_executable=None",
