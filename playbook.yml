@@ -83,7 +83,7 @@
         path: C:\tmp\install\AWSCLI64.msi
         state: present
 
-    - name:  GET config files from S3
+    - name: GET config files from S3
       win_shell: aws s3 cp s3://dq-config-bucket/dq-ops-win/ C:\tmp\install\ --recursive
       args:
         executable: powershell.exe
@@ -106,10 +106,13 @@
         dest: 'C:\Users\Public\Desktop\Notepad++.lnk'
         icon: 'C:\Program Files\Notepad++\notepad++.exe'
 
-    - win_file:
+    - name: SQLWorkbench - create shortcut folder (Public Desktop)
+      win_file:
         path: C:\Users\Public\Desktop\SQLWorkbench
         state: directory
-    - win_shortcut:
+
+    - name: SQLWorkbench - create shortcut for all users (Public Desktop)
+      win_shortcut:
         src: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
         dest: 'C:\Users\Public\Desktop\SQLWorkbench\SQLWorkbench.lnk'
         args: -configDir=C:\Users\Public\.sqlworkbench
@@ -230,28 +233,11 @@
         $task | Set-ScheduledTask
 
     - name: Add entries into Windows hosts file
-      win_lineinfile:
+      win_blockinfile:
         path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.12.111 analysis.notprod.dq.homeoffice.gov.uk www.analysis.notprod.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
-    - win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.12.111 analysis.dq.homeoffice.gov.uk www.analysis.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
-    - win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.14.111 tableau-carrierportal.notprod.dq.homeoffice.gov.uk www.tableau-carrierportal.notprod.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
-    - win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.14.111 tableau-carrierportal.dq.homeoffice.gov.uk www.tableau-carrierportal.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
-    - win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.12.115 analysis-staging.dq.homeoffice.gov.uk www.analysis-staging.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
+        block: |
+          10.1.12.111 analysis.notprod.dq.homeoffice.gov.uk www.analysis.notprod.dq.homeoffice.gov.uk
+          10.1.12.111 analysis.dq.homeoffice.gov.uk www.analysis.dq.homeoffice.gov.uk
+          10.1.14.111 tableau-carrierportal.notprod.dq.homeoffice.gov.uk www.tableau-carrierportal.notprod.dq.homeoffice.gov.uk
+          10.1.14.111 tableau-carrierportal.dq.homeoffice.gov.uk www.tableau-carrierportal.dq.homeoffice.gov.uk
+          10.1.12.115 analysis-staging.dq.homeoffice.gov.uk www.analysis-staging.dq.homeoffice.gov.uk
