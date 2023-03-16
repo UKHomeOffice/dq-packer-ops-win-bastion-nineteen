@@ -28,7 +28,7 @@
         mkdir C:\PSTools
         mkdir C:\scripts
 
-    - name: Install Cholocatey
+    - name: Install Chocolatey
       win_shell: |
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [System.Net.ServicePointManager]::SecurityProtocol = 3072
@@ -36,7 +36,7 @@
         choco feature enable -n allowGlobalConfirmation
         choco install chocolatey --version 1.1.0 --force
 
-    - name: Create Directories
+    - name: Chocolatey install various tools (consider splitting this Play into smaller chunks)
       win_shell: |
         choco install python2
         choco install python --version=3.9.0
@@ -99,24 +99,6 @@
         product_id: '{F3855CA6-073C-48B5-914A-AFD76AF2948B}'
         arguments: '/q /norestart'
         state: present
-
-
-    - name: Atom - Move install to Program Files
-      win_copy:
-        src: 'C:\Users\Administrator\AppData\Local\atom'
-        dest: 'C:\Program Files (x86)'
-        remote_src: True
-
-    - name: Atom - Create shortcut for all users (Public Desktop)
-      win_shortcut:
-        src: 'C:\Program Files (x86)\atom\atom.exe'
-        dest: 'C:\Users\Public\Desktop\Atom.lnk'
-        icon: 'C:\Program Files (x86)\atom\atom.exe'
-
-    - name: Atom - Remove OLD installation directory (cleanup)
-      win_file:
-        path: 'C:\Users\Administrator\AppData\Local\atom'
-        state: absent
 
     - name: Notpad++ - Create shortcut for all users (Public Desktop)
       win_shortcut:
