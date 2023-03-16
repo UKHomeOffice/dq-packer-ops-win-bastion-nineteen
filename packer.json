@@ -44,6 +44,7 @@
         "ANSIBLE_NOCOLOR=True",
         "ANSIBLE_TIMEOUT=30"
       ],
+      "user": "Administrator",
       "use_proxy": false,
       "extra_arguments": [
         "-vvv",
