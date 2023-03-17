@@ -36,7 +36,7 @@
         choco feature enable -n allowGlobalConfirmation
         choco install chocolatey --version 1.1.0 --force
 
-    - name: Chocolatey install various tools (consider splitting this Play into smaller chunks)
+    - name: Chocolatey install various tools (non-python)
       win_shell: |
         choco install vnc-viewer
         choco install googlechrome
@@ -46,7 +46,7 @@
         choco install git
         choco install sql-workbench --ignore-checksums
 
-    - name: Chocolatey install various tools (consider splitting this Play into smaller chunks)
+    - name: Chocolatey install various tools (python related)
       win_shell: |
         choco install python2
         choco install python --version=3.9.0
