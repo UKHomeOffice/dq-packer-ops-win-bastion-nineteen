@@ -43,56 +43,6 @@ steps:
   - export HOME=/home/packer
   - packer inspect packer.json
 
-#- name: display-secrets
-#  pull: if-not-exists
-#  image: *vault-image
-#  commands:
-#    # Display CI Drone Vault Token
-#    - set -xv
-#    - export AWS_ACCESS_KEY_ID=$${AWS_ACCESS_KEY_ID}
-#    - export AWS_SECRET_ACCESS_KEY=$${AWS_SECRET_ACCESS_KEY}
-#    - export NOTPROD_ACC_ID=$${NOTPROD_ACC_ID}
-#    - export NOTPROD_ACC_KEY=$${NOTPROD_ACC_KEY}
-#    - export VAULT_ADDR_EXPORT=$${VAULT_ADDR_IN_DRONE}
-#    - export VAULT_TOKEN_EXPORT=$${VAULT_TOKEN_IN_DRONE}
-#  environment:
-#    AWS_ACCESS_KEY_ID:
-#      from_secret: AWS_ACCESS_KEY_ID
-#    AWS_SECRET_ACCESS_KEY:
-#      from_secret: AWS_SECRET_ACCESS_KEY
-#    NOTPROD_ACC_ID:
-#      from_secret: NOTPROD_ACC_ID
-#    NOTPROD_ACC_KEY:
-#      from_secret: NOTPROD_ACC_KEY
-#    VAULT_ADDR_IN_DRONE:
-#      from_secret: VAULT_ADDR_SIT
-#    VAULT_TOKEN_IN_DRONE:
-#      from_secret: VAULT_TOKEN_SIT
-#  when:
-#    event:
-#      - push
-#
-#
-#- name: display-vault-tokens
-#  pull: if-not-exists
-#  image: *vault-image
-#  commands:
-#    # Display CI Drone Vault Token
-#    - set -xv
-#    - export VAULT_ADDR_EXPORT=$${VAULT_ADDR_IN_DRONE}
-#    - export VAULT_TOKEN_EXPORT=$${VAULT_TOKEN_IN_DRONE}
-#    - vault token renew > /dev/null
-#    - export VAULT_ADDR_EXPORT=$${VAULT_ADDR_IN_DRONE}
-#    - export VAULT_TOKEN_EXPORT=$${VAULT_TOKEN_IN_DRONE}
-#  environment:
-#    VAULT_ADDR_IN_DRONE:
-#      from_secret: VAULT_ADDR_SIT
-#    VAULT_TOKEN_IN_DRONE:
-#      from_secret: VAULT_TOKEN_SIT
-#  when:
-#    event:
-#      - push
-
 - name: retrieve_aws_secrets_ci
   pull: if-not-exists
   image: *vault-image
@@ -119,23 +69,47 @@ steps:
     event:
     - push
 
+- name: retrieve_aws_secrets_np
+  pull: if-not-exists
+  image: *vault-image
+  commands:
+    *retrieve-deployment-aws-key
+  environment:
+    VAULT_ADDR:
+      from_secret: VAULT_ADDR_NOTPROD
+    VAULT_TOKEN:
+      from_secret: VAULT_TOKEN_NOTPROD
+  when:
+    event:
+      - push
+
 - name: packer-copy-notprod
   pull: if-not-exists
   image: *copy-image
   commands:
-  - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win*""
-  - export aws_id=$${NOTPROD_ACC_ID}
-  - export aws_key=$${NOTPROD_ACC_KEY}
+  - source ./set_aws_secrets.sh
+  - export filters="--owner 093401982388 --filters "Name=name,Values=dq-tableau-linux-*""
   - export region=eu-west-2
   - export HOME=/home/packer
   - cd /home/packer
   - ./build.sh
-  environment:
-    NOTPROD_ACC_ID:
-      from_secret: NOTPROD_ACC_ID
-    NOTPROD_ACC_KEY:
-      from_secret: NOTPROD_ACC_KEY
   when:
+    event:
+    - push
+
+- name: retrieve_aws_secrets_prod
+  pull: if-not-exists
+  image: *vault-image
+  commands:
+    *retrieve-deployment-aws-key
+  environment:
+    VAULT_ADDR:
+      from_secret: VAULT_ADDR_PROD
+    VAULT_TOKEN:
+      from_secret: VAULT_TOKEN_PROD
+  when:
+    branch:
+    - master
     event:
     - push
 
@@ -143,18 +117,12 @@ steps:
   pull: if-not-exists
   image: *copy-image
   commands:
-  - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win*""
-  - export aws_id=$${PROD_ACC_ID}
-  - export aws_key=$${PROD_ACC_KEY}
+  - source ./set_aws_secrets.sh
+  - export filters="--owner 093401982388 --filters "Name=name,Values=dq-tableau-linux-*""
   - export region=eu-west-2
   - export HOME=/home/packer
   - cd /home/packer
   - ./build.sh
-  environment:
-    PROD_ACC_ID:
-      from_secret: PROD_ACC_ID
-    PROD_ACC_KEY:
-      from_secret: PROD_ACC_KEY
   when:
     branch:
     - master
