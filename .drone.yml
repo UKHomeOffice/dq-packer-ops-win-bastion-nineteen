@@ -76,9 +76,9 @@ steps:
     *retrieve-deployment-aws-key
   environment:
     VAULT_ADDR:
-      from_secret: VAULT_ADDR_NOTPROD
+      from_secret: VAULT_ADDR_SIT
     VAULT_TOKEN:
-      from_secret: VAULT_TOKEN_NOTPROD
+      from_secret: VAULT_TOKEN_SIT
   when:
     event:
       - push
