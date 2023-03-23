@@ -1,22 +1,22 @@
 ---
 
-- name: Build Windows server.
+- name: Build Windows server
   hosts: all
   gather_facts: false
   tasks:
-    - name: Firewall rules
+    - name: Firewall Profile and Rules
       win_shell: |
         Set-NetFirewallProfile -Profile Domain -Enabled False
         Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
-        C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 -Schedule
-
 
     - name: Install AD UAC, GPM
       win_shell: |
+        Install-PackageProvider -Name NuGet -RequiredVersion 2.8.5.201 -Force
         Import-Module ServerManager
         Add-WindowsFeature RSAT-ADDS-Tools
         Add-WindowsFeature –Name GPMC
         Add-WindowsFeature -Name Telnet-Client
+        Install-Module -Name PSSlack -RequiredVersion 1.0.2
 
     - name: Set timezone to 'GMT Standard Time' (GMT)
       win_shell: |
@@ -28,7 +28,7 @@
         mkdir C:\PSTools
         mkdir C:\scripts
 
-    - name: Install Cholocatey
+    - name: Install Chocolatey
       win_shell: |
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [System.Net.ServicePointManager]::SecurityProtocol = 3072
@@ -36,18 +36,20 @@
         choco feature enable -n allowGlobalConfirmation
         choco install chocolatey --version 1.1.0 --force
 
-    - name: Create Directories
+    - name: Chocolatey install various tools (non-python)
       win_shell: |
-        choco install python2
-        choco install python --version=3.9.0
         choco install vnc-viewer
         choco install googlechrome
         choco install pgadmin4
         choco install putty
         choco install notepadplusplus
-        choco install atom
         choco install git
         choco install sql-workbench --ignore-checksums
+
+    - name: Chocolatey install various tools (python related)
+      win_shell: |
+        choco install python2
+        choco install python --version=3.9.0
         C:\Python39\python.exe -m pip install --upgrade pip
         py -m pip install boto3
 
@@ -84,7 +86,7 @@
         path: C:\tmp\install\AWSCLI64.msi
         state: present
 
-    - name:  GET config files from S3
+    - name: GET config files from S3
       win_shell: aws s3 cp s3://dq-config-bucket/dq-ops-win/ C:\tmp\install\ --recursive
       args:
         executable: powershell.exe
@@ -101,34 +103,19 @@
         arguments: '/q /norestart'
         state: present
 
-
-    - name: Atom - Move install to Program Files
-      win_copy:
-        src: 'C:\Users\Administrator\AppData\Local\atom'
-        dest: 'C:\Program Files (x86)'
-        remote_src: True
-
-    - name: Atom - Create shortcut for all users (Public Desktop)
-      win_shortcut:
-        src: 'C:\Program Files (x86)\atom\atom.exe'
-        dest: 'C:\Users\Public\Desktop\Atom.lnk'
-        icon: 'C:\Program Files (x86)\atom\atom.exe'
-
-    - name: Atom - Remove OLD installation directory (cleanup)
-      win_file:
-        path: 'C:\Users\Administrator\AppData\Local\atom'
-        state: absent
-
     - name: Notpad++ - Create shortcut for all users (Public Desktop)
       win_shortcut:
         src: 'C:\Program Files\Notepad++\notepad++.exe'
         dest: 'C:\Users\Public\Desktop\Notepad++.lnk'
         icon: 'C:\Program Files\Notepad++\notepad++.exe'
 
-    - win_file:
+    - name: SQLWorkbench - create shortcut folder (Public Desktop)
+      win_file:
         path: C:\Users\Public\Desktop\SQLWorkbench
         state: directory
-    - win_shortcut:
+
+    - name: SQLWorkbench - create shortcut for all users (Public Desktop)
+      win_shortcut:
         src: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
         dest: 'C:\Users\Public\Desktop\SQLWorkbench\SQLWorkbench.lnk'
         args: -configDir=C:\Users\Public\.sqlworkbench
@@ -160,11 +147,11 @@
         src: C:\tmp\install\AWS.EC2.Windows.Cloudwatch.json.zip
         dest: C:\Program Files\Amazon\SSM\Plugins\awsCloudWatch
         delete_archive: yes
-    #
-    # # - name: Save CW config by restarting the Service
-    # #   win_shell: |
-    # #     Restart-Service AmazonSSMAgent
-    #
+
+   # # - name: Save CW config by restarting the Service
+   # #   win_shell: |
+   # #     Restart-Service AmazonSSMAgent
+
     - name: Copy stopped service monitoring PS script
       win_copy:
         src: ./scripts/monitor_stopped_win_services.ps1
@@ -180,7 +167,7 @@
         src: ./scripts/win-updates.ps1
         dest: C:\scripts\
 
-    - name: Copy useradta script
+    - name: Copy userdata script
       win_copy:
         src: ./scripts/userdata.ps1
         dest: C:\scripts\
@@ -249,6 +236,7 @@
         $task | Set-ScheduledTask
 
     - name: Add entries into Windows hosts file
+      # Using multiple win_lineinfile sections because blockinfile is unavailable on Windows
       win_lineinfile:
         path: C:\Windows\System32\drivers\etc\hosts
         line: '10.1.12.111 analysis.notprod.dq.homeoffice.gov.uk www.analysis.notprod.dq.homeoffice.gov.uk'
