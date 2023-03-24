@@ -15,10 +15,10 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "cloudimg-windows-server2019*"
+          "name": "Windows_Server-2019-English-Full-Base-*"
         },
         "owners": [
-          "679593333241"
+          "801119661308"
         ],
         "most_recent": true
       },
