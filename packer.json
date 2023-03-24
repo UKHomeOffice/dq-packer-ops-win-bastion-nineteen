@@ -15,7 +15,7 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "Windows_Server-2019-English-Full-Base-*"
+          "name": "EC2LaunchV2-Windows_Server-2019-English-Full-Base-*"
         },
         "owners": [
           "801119661308"
