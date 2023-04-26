@@ -2,7 +2,7 @@
 global-variables:
   vault-image: &vault-image  docker.digital.homeoffice.gov.uk/dq/dq-vault-awscli:1.43
   packer-image: &packer-image quay.io/ukhomeofficedigital/dq-packer-ansible
-  copy-image: &copy-image quay.io/ukhomeofficedigital/dq-packer-encrypt-copy:dev-59
+  copy-image: &copy-image quay.io/ukhomeofficedigital/dq-packer-encrypt-copy:dev-61
 
 kind: pipeline
 name: default
@@ -113,8 +113,8 @@ steps:
     VAULT_TOKEN:
       from_secret: VAULT_TOKEN_PROD
   when:
-    branch:
-    - master
+#    branch:
+#    - master
     event:
     - push
 
@@ -129,8 +129,8 @@ steps:
   - cd /home/packer
   - ./build.sh
   when:
-    branch:
-    - master
+#    branch:
+#    - master
     event:
     - push
 
