@@ -2,7 +2,7 @@
 global-variables:
   vault-image: &vault-image  docker.digital.homeoffice.gov.uk/dq/dq-vault-awscli:1.43
   packer-image: &packer-image quay.io/ukhomeofficedigital/dq-packer-ansible
-  copy-image: &copy-image quay.io/ukhomeofficedigital/dq-packer-encrypt-copy:dev-74
+  copy-image: &copy-image quay.io/ukhomeofficedigital/dq-packer-encrypt-copy:dev-77
 
 kind: pipeline
 name: default
@@ -95,6 +95,7 @@ steps:
   commands:
   - source ./set_aws_secrets.sh
   - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-nineteen-bastion-*""
+  - export os="win2019"
   - export HOME=/home/packer
   - cd /home/packer
   - ./build.sh
