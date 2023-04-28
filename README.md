@@ -14,13 +14,14 @@ Ansible playbook installing the following:
 - PSTools
 - Chocolatey package manager
 - Python2.7
-- Python3
-- VNC viewer
+- Python3.9
+- VSCode
+- DBeaver
 - Google Chrome
 - Putty
 - AWS CLI
 - AWS Toolkit for Powershell
-- PGAdmin 1.18.1
+- PGAdmin4
 - Notepad++
 - Microsoft SQL Management Studio
 
