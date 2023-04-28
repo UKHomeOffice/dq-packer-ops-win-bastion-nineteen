@@ -103,7 +103,7 @@
         arguments: '/q /norestart'
         state: present
 
-    - name: Notpad++ - Create shortcut for all users (Public Desktop)
+    - name: Notepad++ - Create shortcut for all users (Public Desktop)
       win_shortcut:
         src: 'C:\Program Files\Notepad++\notepad++.exe'
         dest: 'C:\Users\Public\Desktop\Notepad++.lnk'
