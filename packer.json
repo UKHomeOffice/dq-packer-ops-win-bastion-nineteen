@@ -74,7 +74,7 @@
       "inline": [
       "Set-Location $env:programfiles/amazon/ec2launch",
       "./ec2launch.exe reset --clean --block",
-      "./ec2launch.exe sysprep --clean --block"
+      "./ec2launch.exe sysprep --clean"
       ]
     }
   ]
