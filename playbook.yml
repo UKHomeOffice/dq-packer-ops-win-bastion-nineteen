@@ -45,7 +45,7 @@
         choco install dbeaver
         choco install vscode
         choco install git
-        choco install sql-workbench --ignore-checksums
+        choco install sql-workbench
 
     - name: Chocolatey install various tools (python related)
       win_shell: |
@@ -134,14 +134,14 @@
         dest: 'C:\Users\Public\Desktop\pgAdmin4.lnk'
         icon: 'C:\Program Files\pgAdmin 4\v6\runtime\pgAdmin4.exe'
 
-    - name: Download Athena JDBC Driver
+    - name: Download Athena JDBC Driver - with AWS SDK for Tableau Desktop
       win_get_url:
-        url: https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC-2.0.23.1000/AthenaJDBC42.jar
+        url: https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC-2.0.36.1000/AthenaJDBC42-2.0.36.1000.jar
         dest: C:\Users\Public\Desktop\SQLWorkbench\
 
     - name: Download PostgreSQL JDBC Driver
       win_get_url:
-        url: https://jdbc.postgresql.org/download/postgresql-42.2.14.jar
+        url: https://jdbc.postgresql.org/download/postgresql-42.2.27.jar
         dest: C:\Users\Public\Desktop\SQLWorkbench\
 
     - name: Download SQL Management studio
