@@ -95,6 +95,7 @@ steps:
   commands:
   - source ./set_aws_secrets.sh
   - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-nineteen-bastion-*""
+  - export os="win2019"
   - export HOME=/home/packer
   - cd /home/packer
   - ./build.sh
@@ -124,6 +125,7 @@ steps:
   commands:
   - source ./set_aws_secrets.sh
   - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-nineteen-bastion-*""
+  - export os="win2019"
   - export HOME=/home/packer
   - packer --version
   - cd /home/packer
