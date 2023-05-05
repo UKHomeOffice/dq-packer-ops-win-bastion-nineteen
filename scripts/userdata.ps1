@@ -79,4 +79,15 @@ $Shortcut.TargetPath = $SourceFileLocation
 $Shortcut.Save()
 Write-Host 'pgAdmin4 Shortcut created! Click on pgAdmin 4 Folder to initialize shortcut!'
 
+
+
+Write-Host 'Setting home location to the United Kingdom'
+Set-WinHomeLocation 0xf2
+
+Write-Host 'Setting system local'
+Set-WinSystemLocale en-GB
+
+Write-Host 'Setting TimeZone to GMT'
+Set-TimeZone "GMT Standard Time"
+
 Stop-Transcript

@@ -18,10 +18,6 @@
         Add-WindowsFeature -Name Telnet-Client
         Install-Module -Name PSSlack -RequiredVersion 1.0.2
 
-    - name: Set timezone to 'GMT Standard Time' (GMT)
-      win_shell: |
-        Set-TimeZone -Id "GMT Standard Time"
-
     - name: Create Directories
       win_shell: |
         mkdir C:\tmp\install
@@ -149,12 +145,12 @@
     - name: Download Athena JDBC Driver - with AWS SDK for Tableau Desktop
       win_get_url:
         url: https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC-2.0.36.1000/AthenaJDBC42-2.0.36.1000.jar
-        dest: C:\Users\Public\Desktop\SQLWorkbench\
+        dest: C:\Users\Public\Desktop\SQLWorkbench\AthenaJDBC42.jar
 
     - name: Download PostgreSQL JDBC Driver
       win_get_url:
         url: https://jdbc.postgresql.org/download/postgresql-42.2.27.jar
-        dest: C:\Users\Public\Desktop\SQLWorkbench\
+        dest: C:\Users\Public\Desktop\SQLWorkbench\postgresql-42.jar
 
     - name: Download SQL Management studio
       win_shell: |
