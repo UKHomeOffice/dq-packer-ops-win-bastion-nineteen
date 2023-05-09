@@ -1,16 +1,15 @@
----
-global-variables:
-  vault-image: &vault-image  docker.digital.homeoffice.gov.uk/dq/dq-vault-awscli:1.43
-  packer-image: &packer-image quay.io/ukhomeofficedigital/dq-packer-ansible
-  copy-image: &copy-image quay.io/ukhomeofficedigital/dq-packer-encrypt-copy
-
 kind: pipeline
-name: default
 type: kubernetes
+name: default
 
 platform:
   os: linux
   arch: amd64
+
+global-variables:
+  vault-image: &vault-image  docker.digital.homeoffice.gov.uk/dq/dq-vault-awscli:1.43
+  packer-image: &packer-image quay.io/ukhomeofficedigital/dq-packer-ansible
+  copy-image: &copy-image quay.io/ukhomeofficedigital/dq-packer-encrypt-copy
 
 x-anchors:
   retrieve-deployment-aws-key: &retrieve-deployment-aws-key
@@ -47,6 +46,8 @@ steps:
   - export HOME=/home/packer
   - packer --version
   - packer inspect packer.json
+  depends_on:
+    - validate
 
 - name: retrieve_aws_secrets_ci
   pull: always
@@ -61,6 +62,8 @@ steps:
   when:
     event:
       - push
+  depends_on:
+    - inspect
 
 - name: build
   pull: if-not-exists
@@ -74,6 +77,8 @@ steps:
   when:
     event:
     - push
+  depends_on:
+    - retrieve_aws_secrets_ci
 
 - name: retrieve_aws_secrets_np
   pull: if-not-exists
@@ -88,6 +93,8 @@ steps:
   when:
     event:
       - push
+  depends_on:
+    - build
 
 - name: packer-copy-notprod
   pull: always
@@ -102,6 +109,8 @@ steps:
   when:
     event:
     - push
+  depends_on:
+    - retrieve_aws_secrets_np
 
 - name: retrieve_aws_secrets_prod
   pull: if-not-exists
@@ -118,6 +127,8 @@ steps:
     - master
     event:
     - push
+  depends_on:
+    - build
 
 - name: packer-copy-prod
   pull: if-not-exists
@@ -135,6 +146,8 @@ steps:
     - master
     event:
     - push
+  depends_on:
+    - retrieve_aws_secrets_prod
 
 - name: renew-vault-tokens
   pull: if-not-exists
@@ -171,3 +184,5 @@ steps:
       - cron
     cron:
       - renew-vault-tokens
+  depends_on:
+    - inspect
