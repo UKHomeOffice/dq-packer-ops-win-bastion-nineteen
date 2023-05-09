@@ -87,6 +87,9 @@ Set-WinHomeLocation 0xf2
 Write-Host 'Setting system local'
 Set-WinSystemLocale en-GB
 
+Write-Host 'Setting regional format (date/time etc.) to English (United Kingdon) - this applies to all users'
+Set-Culture en-GB
+
 Write-Host 'Setting TimeZone to GMT'
 Set-TimeZone "GMT Standard Time"
 
