@@ -73,7 +73,7 @@ steps:
   - export HOME=/home/packer
   - export DRONE_BUILD_NUMBER=$${DRONE_BUILD_NUMBER}
   - packer --version
-#  - packer build packer.json
+  - packer build packer.json
   when:
     event:
     - push
@@ -123,8 +123,8 @@ steps:
     VAULT_TOKEN:
       from_secret: VAULT_TOKEN_PROD
   when:
-#    branch:
-#    - master
+    branch:
+    - master
     event:
     - push
   depends_on:
@@ -142,8 +142,8 @@ steps:
   - cd /home/packer
   - ./build.sh
   when:
-#    branch:
-#    - master
+    branch:
+    - master
     event:
     - push
   depends_on:
