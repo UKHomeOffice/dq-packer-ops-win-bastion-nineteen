@@ -14,7 +14,7 @@ global-variables:
 x-anchors:
   retrieve-deployment-aws-key: &retrieve-deployment-aws-key
     - vault --version
-    # Diags
+    # Derive specific VAULT Environment/AWS Account
     - echo "DRONE_STEP_NAME = $${DRONE_STEP_NAME}"
     - export VAULT_ENV=$(echo $${DRONE_STEP_NAME} | awk -F "_" '{print $NF}')
     - export AWS_CREDS="aws_creds_$${VAULT_ENV}.json"
@@ -25,7 +25,6 @@ x-anchors:
     - export ACCESS_KEY=$(cat $${AWS_CREDS} | grep access_key | awk -F ' ' '{print $2}')
     - export SECRET_KEY=$(cat $${AWS_CREDS} | grep secret_key | awk -F ' ' '{print $2}')
     - export REGION=eu-west-2
-#    - export LEASE_ID_IJR=$(vault read -field="lease_id" aws_dacc_dq/creds/drone)
     # Update the token TTL to 10mins
     - vault lease renew -increment=3600 $${LEASE_ID}
     # Get the AWS credentials - for `packer-image`
@@ -82,7 +81,7 @@ steps:
     - export HOME=/home/packer
     - export DRONE_BUILD_NUMBER=$${DRONE_BUILD_NUMBER}
     - packer --version
-#   - packer build packer.json
+    - packer build packer.json
   when:
     event:
     - push
