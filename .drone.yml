@@ -27,6 +27,11 @@ x-anchors:
     - echo "export aws_id=$(cat aws_creds.json | grep access_key | awk -F ' ' '{print $2}')" >> set_aws_secrets.sh
     - echo "export aws_key=$(cat aws_creds.json | grep secret_key | awk -F ' ' '{print $2}')" >> set_aws_secrets.sh
     - echo "export region=eu-west-2" >> set_aws_secrets.sh
+    # Diags
+    - echo "DRONE_STEP_NAME = ${DRONE_STEP_NAME}"
+    - echo "DRONE_STEP_NAME = $${DRONE_STEP_NAME}"
+    - echo "DRONE_STEP_NAME = ${DRONE_STEP_NAME}" >> set_aws_secrets.sh
+    - echo "DRONE_STEP_NAME = $${DRONE_STEP_NAME}" >> set_aws_secrets.sh
     # Since AWS is eventually consistent we need to sleep a little while so the AWS key is created and made available
     - sleep 20
 
@@ -69,11 +74,19 @@ steps:
   pull: if-not-exists
   image: *packer-image
   commands:
-  - source ./set_aws_secrets.sh
-  - export HOME=/home/packer
-  - export DRONE_BUILD_NUMBER=$${DRONE_BUILD_NUMBER}
-  - packer --version
-  - packer build packer.json
+    - echo "BUILD_STEP = ${BUILD_STEP)"
+    - echo "BUILD_STEP = $${BUILD_STEP)"
+    - export BUILD_STEP=1
+    - echo "BUILD_STEP = ${BUILD_STEP)"
+    - echo "BUILD_STEP = $${BUILD_STEP)"
+    - echo "DRONE_STEP_NAME = ${DRONE_STEP_NAME}"
+    - echo "DRONE_STEP_NAME = $${DRONE_STEP_NAME}"
+    - source ./set_aws_secrets.sh
+    - export HOME=/home/packer
+    - export DRONE_BUILD_NUMBER=$${DRONE_BUILD_NUMBER}
+    - packer --version
+    - nosuchexec
+#   - packer build packer.json
   when:
     event:
     - push
