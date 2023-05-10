@@ -14,9 +14,16 @@ global-variables:
 x-anchors:
   retrieve-deployment-aws-key: &retrieve-deployment-aws-key
     - vault --version
+    # Diags
+    - echo "DRONE_STEP_NAME = $${DRONE_STEP_NAME}"
+    - export VAULT_ENV = $(echo $${DRONE_STEP_NAME} | awk -F "_" '{print $NF}')
+    - echo "VAULT_ENV = $${VAULT_ENV}"
     # Retrieve vault secrets
     - vault read aws_dacc_dq/creds/drone > aws_creds.json
+    - vault read aws_dacc_dq/creds/drone > aws_creds_${VAULT_ENV}.json
+    - vault read aws_dacc_dq/creds/drone > aws_creds_$${VAULT_ENV}.json
     - export LEASE_ID=$(cat aws_creds.json | grep lease_id | awk -F ' ' '{print $2}')
+    - export LEASE_ID_IJR=$(vault read -field="lease_id" aws_dacc_dq/creds/drone)
     # Update the token TTL to 10mins
     - vault lease renew -increment=3600 $${LEASE_ID}
     # Get the AWS credentials - for `packer-image`
@@ -27,11 +34,6 @@ x-anchors:
     - echo "export aws_id=$(cat aws_creds.json | grep access_key | awk -F ' ' '{print $2}')" >> set_aws_secrets.sh
     - echo "export aws_key=$(cat aws_creds.json | grep secret_key | awk -F ' ' '{print $2}')" >> set_aws_secrets.sh
     - echo "export region=eu-west-2" >> set_aws_secrets.sh
-    # Diags
-    - echo "DRONE_STEP_NAME = ${DRONE_STEP_NAME}"
-    - echo "DRONE_STEP_NAME = $${DRONE_STEP_NAME}"
-    - echo "DRONE_STEP_NAME = ${DRONE_STEP_NAME}" >> set_aws_secrets.sh
-    - echo "DRONE_STEP_NAME = $${DRONE_STEP_NAME}" >> set_aws_secrets.sh
     # Since AWS is eventually consistent we need to sleep a little while so the AWS key is created and made available
     - sleep 20
 
