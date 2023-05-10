@@ -17,13 +17,14 @@ x-anchors:
     # Diags
     - echo "DRONE_STEP_NAME = $${DRONE_STEP_NAME}"
     - export VAULT_ENV_1=$${DRONE_STEP_NAME}
-    - export VAULT_ENV_2=$(echo  ${VAULT_ENV_1} | awk -F "_" '{print $NF}')
     - export VAULT_ENV_3=$(echo $${VAULT_ENV_1} | awk -F "_" '{print $NF}')
     - echo "VAULT_ENV_1 = $${VAULT_ENV_1}"
-    - echo "VAULT_ENV_2 = $${VAULT_ENV_2}"
     - echo "VAULT_ENV_3 = $${VAULT_ENV_3}"
+    - export VAULT_ENV=$(echo $${DRONE_STEP_NAME} | awk -F "_" '{print $NF}')
+    - export AWS_CREDS="aws_creds_$${VAULT_ENV}.json"
     # Retrieve vault secrets
     - vault read aws_dacc_dq/creds/drone > aws_creds.json
+    - vault read aws_dacc_dq/creds/drone > $${AWS_CREDS}
     - vault read aws_dacc_dq/creds/drone > aws_creds_${VAULT_ENV}.json
     - vault read aws_dacc_dq/creds/drone > aws_creds_$${VAULT_ENV}.json
     - export LEASE_ID=$(cat aws_creds.json | grep lease_id | awk -F ' ' '{print $2}')
