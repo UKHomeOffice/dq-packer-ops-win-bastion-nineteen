@@ -16,6 +16,7 @@ x-anchors:
     - vault --version
     # Diags
     - echo "DRONE_STEP_NAME = $${DRONE_STEP_NAME}"
+    - export VAULT_ENV = $(echo ${DRONE_STEP_NAME} | awk -F "_" '{print $NF}')
     - export VAULT_ENV = $(echo $${DRONE_STEP_NAME} | awk -F "_" '{print $NF}')
     - echo "VAULT_ENV = $${VAULT_ENV}"
     # Retrieve vault secrets
