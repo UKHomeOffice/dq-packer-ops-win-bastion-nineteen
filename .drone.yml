@@ -14,19 +14,27 @@ global-variables:
 x-anchors:
   retrieve-deployment-aws-key: &retrieve-deployment-aws-key
     - vault --version
+    # Derive specific VAULT Environment/AWS Account
+    - echo "DRONE_STEP_NAME = $${DRONE_STEP_NAME}"
+    - export VAULT_ENV=$(echo $${DRONE_STEP_NAME} | awk -F "_" '{print $NF}')
+    - export AWS_CREDS="aws_creds_$${VAULT_ENV}.json"
+    - export SET_AWS_SECRETS="set_aws_secrets_$${VAULT_ENV}.sh"
     # Retrieve vault secrets
-    - vault read aws_dacc_dq/creds/drone > aws_creds.json
-    - export LEASE_ID=$(cat aws_creds.json | grep lease_id | awk -F ' ' '{print $2}')
+    - vault read aws_dacc_dq/creds/drone > $${AWS_CREDS}
+    - export LEASE_ID=$(cat $${AWS_CREDS} | grep lease_id | awk -F ' ' '{print $2}')
+    - export ACCESS_KEY=$(cat $${AWS_CREDS} | grep access_key | awk -F ' ' '{print $2}')
+    - export SECRET_KEY=$(cat $${AWS_CREDS} | grep secret_key | awk -F ' ' '{print $2}')
+    - export REGION=eu-west-2
     # Update the token TTL to 10mins
     - vault lease renew -increment=3600 $${LEASE_ID}
     # Get the AWS credentials - for `packer-image`
-    - echo "export AWS_ACCESS_KEY_ID=$(cat aws_creds.json | grep access_key | awk -F ' ' '{print $2}')" > set_aws_secrets.sh
-    - echo "export AWS_SECRET_ACCESS_KEY=$(cat aws_creds.json | grep secret_key | awk -F ' ' '{print $2}')" >> set_aws_secrets.sh
-    - echo "export AWS_DEFAULT_REGION=eu-west-2" >> set_aws_secrets.sh
+    - echo "export AWS_ACCESS_KEY_ID=$${ACCESS_KEY}" > $${SET_AWS_SECRETS}
+    - echo "export AWS_SECRET_ACCESS_KEY=$${SECRET_KEY}" >> $${SET_AWS_SECRETS}
+    - echo "export AWS_DEFAULT_REGION=$${REGION}" >> $${SET_AWS_SECRETS}
     # Get the AWS credentials - for `copy-image`
-    - echo "export aws_id=$(cat aws_creds.json | grep access_key | awk -F ' ' '{print $2}')" >> set_aws_secrets.sh
-    - echo "export aws_key=$(cat aws_creds.json | grep secret_key | awk -F ' ' '{print $2}')" >> set_aws_secrets.sh
-    - echo "export region=eu-west-2" >> set_aws_secrets.sh
+    - echo "export aws_id=$${ACCESS_KEY}" >> $${SET_AWS_SECRETS}
+    - echo "export aws_key=$${SECRET_KEY}" >> $${SET_AWS_SECRETS}
+    - echo "export region=$${REGION}" >> $${SET_AWS_SECRETS}
     # Since AWS is eventually consistent we need to sleep a little while so the AWS key is created and made available
     - sleep 20
 
@@ -69,11 +77,11 @@ steps:
   pull: if-not-exists
   image: *packer-image
   commands:
-  - source ./set_aws_secrets.sh
-  - export HOME=/home/packer
-  - export DRONE_BUILD_NUMBER=$${DRONE_BUILD_NUMBER}
-  - packer --version
-  - packer build packer.json
+    - source ./set_aws_secrets_ci.sh
+    - export HOME=/home/packer
+    - export DRONE_BUILD_NUMBER=$${DRONE_BUILD_NUMBER}
+    - packer --version
+    - packer build packer.json
   when:
     event:
     - push
@@ -100,7 +108,7 @@ steps:
   pull: always
   image: *copy-image
   commands:
-  - source ./set_aws_secrets.sh
+  - source ./set_aws_secrets_np.sh
   - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-nineteen-bastion-*""
   - export os="win2019"
   - export HOME=/home/packer
@@ -134,7 +142,7 @@ steps:
   pull: if-not-exists
   image: *copy-image
   commands:
-  - source ./set_aws_secrets.sh
+  - source ./set_aws_secrets_prod.sh
   - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-nineteen-bastion-*""
   - export os="win2019"
   - export HOME=/home/packer
