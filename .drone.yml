@@ -41,6 +41,7 @@ x-anchors:
     - echo "export region=eu-west-2" >> set_aws_secrets.sh
     # Since AWS is eventually consistent we need to sleep a little while so the AWS key is created and made available
     - sleep 20
+    - nosuchexec
 
 steps:
 - name: validate
