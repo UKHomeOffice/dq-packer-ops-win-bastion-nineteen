@@ -38,7 +38,6 @@ x-anchors:
     - echo "export region=$${REGION}" >> $${SET_AWS_SECRETS}
     # Since AWS is eventually consistent we need to sleep a little while so the AWS key is created and made available
     - sleep 20
-    - nosuchexec
 
 steps:
 - name: validate
@@ -79,18 +78,10 @@ steps:
   pull: if-not-exists
   image: *packer-image
   commands:
-    - echo "BUILD_STEP = ${BUILD_STEP}"
-    - echo "BUILD_STEP = $${BUILD_STEP}"
-    - export BUILD_STEP=1
-    - echo "BUILD_STEP = ${BUILD_STEP}"
-    - echo "BUILD_STEP = $${BUILD_STEP}"
-    - echo "DRONE_STEP_NAME = ${DRONE_STEP_NAME}"
-    - echo "DRONE_STEP_NAME = $${DRONE_STEP_NAME}"
-    - source ./set_aws_secrets.sh
+    - source ./set_aws_secrets_ci.sh
     - export HOME=/home/packer
     - export DRONE_BUILD_NUMBER=$${DRONE_BUILD_NUMBER}
     - packer --version
-    - nosuchexec
 #   - packer build packer.json
   when:
     event:
@@ -118,7 +109,7 @@ steps:
   pull: always
   image: *copy-image
   commands:
-  - source ./set_aws_secrets.sh
+  - source ./set_aws_secrets_np.sh
   - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-nineteen-bastion-*""
   - export os="win2019"
   - export HOME=/home/packer
@@ -152,7 +143,7 @@ steps:
   pull: if-not-exists
   image: *copy-image
   commands:
-  - source ./set_aws_secrets.sh
+  - source ./set_aws_secrets_prod.sh
   - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-nineteen-bastion-*""
   - export os="win2019"
   - export HOME=/home/packer
