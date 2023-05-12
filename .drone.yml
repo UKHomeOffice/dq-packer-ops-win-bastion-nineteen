@@ -62,6 +62,7 @@ steps:
   image: *vault-image
   commands:
     - vault --version
+    - nosuchexe
     # Renew NotProd Drone Vault Token
     - export VAULT_ADDR=$${VAULT_ADDR_NOTPROD}
     - export VAULT_TOKEN=$${VAULT_TOKEN_NOTPROD}
