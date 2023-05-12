@@ -57,6 +57,42 @@ steps:
   depends_on:
     - validate
 
+- name: renew-vault-tokens
+  pull: if-not-exists
+  image: *vault-image
+  commands:
+    - vault --version
+    # Renew NotProd Drone Vault Token
+    - export VAULT_ADDR=$${VAULT_ADDR_NOTPROD}
+    - export VAULT_TOKEN=$${VAULT_TOKEN_NOTPROD}
+    - vault token renew > /dev/null
+    # Renew Prod Drone Vault Token
+    - export VAULT_ADDR=$${VAULT_ADDR_PROD}
+    - export VAULT_TOKEN=$${VAULT_TOKEN_PROD}
+    - vault token renew > /dev/null
+    # Renew CI Drone Vault Token
+    - export VAULT_ADDR=$${VAULT_ADDR_SIT}
+    - export VAULT_TOKEN=$${VAULT_TOKEN_SIT}
+    - vault token renew > /dev/null
+  environment:
+    VAULT_ADDR_NOTPROD:
+      from_secret: VAULT_ADDR_NOTPROD
+    VAULT_TOKEN_NOTPROD:
+      from_secret: VAULT_TOKEN_NOTPROD
+    VAULT_ADDR_PROD:
+      from_secret: VAULT_ADDR_PROD
+    VAULT_TOKEN_PROD:
+      from_secret: VAULT_TOKEN_PROD
+    VAULT_ADDR_SIT:
+      from_secret: VAULT_ADDR_SIT
+    VAULT_TOKEN_SIT:
+      from_secret: VAULT_TOKEN_SIT
+  when:
+    event:
+    - push
+  depends_on:
+    - inspect
+
 - name: retrieve_aws_secrets_ci
   pull: always
   image: *vault-image
@@ -156,39 +192,3 @@ steps:
     - push
   depends_on:
     - retrieve_aws_secrets_prod
-
-- name: renew-vault-tokens
-  pull: if-not-exists
-  image: *vault-image
-  commands:
-    - vault --version
-    # Renew NotProd Drone Vault Token
-    - export VAULT_ADDR=$${VAULT_ADDR_NOTPROD}
-    - export VAULT_TOKEN=$${VAULT_TOKEN_NOTPROD}
-    - vault token renew > /dev/null
-    # Renew Prod Drone Vault Token
-    - export VAULT_ADDR=$${VAULT_ADDR_PROD}
-    - export VAULT_TOKEN=$${VAULT_TOKEN_PROD}
-    - vault token renew > /dev/null
-    # Renew CI Drone Vault Token
-    - export VAULT_ADDR=$${VAULT_ADDR_SIT}
-    - export VAULT_TOKEN=$${VAULT_TOKEN_SIT}
-    - vault token renew > /dev/null
-  environment:
-    VAULT_ADDR_NOTPROD:
-      from_secret: VAULT_ADDR_NOTPROD
-    VAULT_TOKEN_NOTPROD:
-      from_secret: VAULT_TOKEN_NOTPROD
-    VAULT_ADDR_PROD:
-      from_secret: VAULT_ADDR_PROD
-    VAULT_TOKEN_PROD:
-      from_secret: VAULT_TOKEN_PROD
-    VAULT_ADDR_SIT:
-      from_secret: VAULT_ADDR_SIT
-    VAULT_TOKEN_SIT:
-      from_secret: VAULT_TOKEN_SIT
-  when:
-    event:
-    - push
-  depends_on:
-    - inspect
