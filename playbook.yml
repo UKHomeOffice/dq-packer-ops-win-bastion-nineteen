@@ -203,7 +203,7 @@
     - name: Setup service monitor scheduled task
       win_shell: |
         $name = "Stopped_Automatic_Services"
-        $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass C:\scripts\monitor_win_services.ps1"
+        $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass C:\scripts\monitor_stopped_win_services.ps1"
         $trigger = New-ScheduledTaskTrigger -Daily -At (Get-Date)
         $description = "Run Stopped service monitor every minute forever."
         $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
