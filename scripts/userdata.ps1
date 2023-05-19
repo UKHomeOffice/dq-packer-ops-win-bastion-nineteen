@@ -78,50 +78,54 @@ else
 Write-Host ">>>>>>>>>>> Environment is $environment! <<<<<<<<<<<<<"
 
 
-# Try to figure out the host from the IP Address
+# Get current hostname
 $current_hostname = $env:computername
 Write-Host "The current hostname is $current_hostname"
-if ($environment -eq "NotProd" -or $environment -eq "Prod")
+
+
+if (!($environment -eq "NotProd" -or $environment -eq "Prod"))
 {
-    Write-Host "Deciphering the desired name of the host from the host part of the IP Address $host_part !"
-    if (-not $host_part)
-    {
-        $new_hostname = "UNKNOWN"
-    }
-    elseif ($host_part -eq "0.12")
-    {
-        $new_hostname = "WIN-BASTION-1"
-    }
-    elseif ($host_part -eq "0.13")
-    {
-        $new_hostname = "WIN-BASTION-2"
-    }
-    elseif ($host_part -eq "0.14")
-    {
-        $new_hostname = "WIN-BASTION-3"
-    }
-    elseif ($host_part -eq "0.15")
-    {
-        $new_hostname = "WIN-BASTION-4"
-    }
-    else
-    {
-        $new_hostname = "WIN-BASTION-$octets[3]"
-    }
-    Write-Host ">>>>>>>>>>> Host should be named $new_hostname <<<<<<<<<<<<<"
+    Write-Host "As the environment is $environment, not trying set up any more. Exiting..."
+    Exit 1
+}
+
+# Only attempt the following if we operating in a known environment
+Write-Host "Deciphering the desired name of the host from the host part of the IP Address $host_part !"
+if (-not $host_part)
+{
+    $new_hostname = "UNKNOWN"
+}
+elseif ($host_part -eq "0.12")
+{
+    $new_hostname = "WIN-BASTION-1"
+}
+elseif ($host_part -eq "0.13")
+{
+    $new_hostname = "WIN-BASTION-2"
+}
+elseif ($host_part -eq "0.14")
+{
+    $new_hostname = "WIN-BASTION-3"
+}
+elseif ($host_part -eq "0.15")
+{
+    $new_hostname = "WIN-BASTION-4"
 }
 else
 {
-    Write-Host "As the environment is $environment, not trying to decipher the desired name of the host"
+    $new_hostname = "WIN-BASTION-$octets[3]"
 }
+Write-Host ">>>>>>>>>>> Host should be named $new_hostname <<<<<<<<<<<<<"
+
+
 
 Write-Host 'Environment Variables'
-$env_flag_file = "\scripts\env.txt"
+$env_flag_file = "\PerfLogs\env.txt"
 if (-not (Test-Path $env_flag_file))
 {
     Write-Host 'Setting config bucket environment variable'
     [Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment/sqlworkbench", "Machine")
-    [System.Environment]::SetEnvironmentVariable('S3_OPS_CONFIG_BUCKET', 's3-dq-ops-config-$environment/sqlworkbench')
+    [System.Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment/sqlworkbench")
     New-Item -Path $env_flag_file -ItemType "file" -Value "Environment variables set. Remove this file to re-run."
 }
 else
@@ -131,12 +135,19 @@ else
 
 
 Write-Host 'Tableau Development RDP Shortcuts'
-$rdp_flag_file = "\scripts\rdp.txt"
+$rdp_flag_file = "\PerfLogs\rdp.txt"
 if (-not (Test-Path $rdp_flag_file))
 {
     Write-Host 'Adding Tableau Development RDP Shortcuts to Desktop'
     Copy-Item -Path C:\misc\* -Filter *-$environment* -Destination C:\Users\Public\Desktop -Recurse
-    New-Item -Path $rdp_flag_file -ItemType "file" -Value "Tableau Development RDP Shortcuts added to Desktop. Remove this file to re-add."
+    if ($?)
+    {
+        New-Item -Path $rdp_flag_file -ItemType "file" -Value "Tableau Development RDP Shortcuts added to Desktop. Remove this file to re-add."
+    }
+    else
+    {
+        Write-Host "Failed to add Tableau Development RDP Shortcuts to Desktop"
+    }
 }
 else
 {
@@ -145,15 +156,26 @@ else
 
 
 Write-Host 'Windows Remote Desktop Services'
-$rds_flag_file = "\scripts\rds.txt"
+$rds_flag_file = "\PerfLogs\rds.txt"
 if (-not (Test-Path $rds_flag_file))
 {
     Write-Host 'Installing Windows Remote Desktop Services'
     Install-WindowsFeature -name windows-internal-database -Verbose
+    $result1 = $?
     Install-WindowsFeature -Name RDS-RD-Server -Verbose -IncludeAllSubFeature
+    $result2 = $?
     Install-WindowsFeature -Name RDS-licensing -Verbose
+    $result3 = $?
     Install-WindowsFeature -Name RDS-connection-broker -IncludeAllSubFeature -verbose
-    New-Item -Path $rds_flag_file -ItemType "file" -Value "Remote Desktop Services installed. Remove this file to re-add."
+    $result4 = $?
+    if ($result1 -and $result2 -and $result3 -and $result4)
+    {
+        New-Item -Path $rds_flag_file -ItemType "file" -Value "Remote Desktop Services installed. Remove this file to re-add."
+    }
+    else
+    {
+        Write-Host "Failed to install Windows Remote Desktop Services"
+    }
 }
 else
 {
@@ -161,7 +183,7 @@ else
 }
 
 Write-Host 'pgAdmin4 Shortcut'
-$pga_flag_file = "\scripts\pga.txt"
+$pga_flag_file = "\PerfLogs\pga.txt"
 if (-not (Test-Path $pga_flag_file))
 {
     Write-Host 'Creating pgAdmin4 Shortcut on Desktop'
@@ -172,7 +194,14 @@ if (-not (Test-Path $pga_flag_file))
     $Shortcut.TargetPath = $SourceFileLocation
     $Shortcut.Save()
     Write-Host 'pgAdmin4 Shortcut created! Click on pgAdmin4 Folder to initialize shortcut!'
-    New-Item -Path $pga_flag_file -ItemType "file" -Value "pgAdmin4 shortcut added to Desktop. Remove this file to re-add."
+    if ($?)
+    {
+        New-Item -Path $pga_flag_file -ItemType "file" -Value "pgAdmin4 shortcut added to Desktop. Remove this file to re-add."
+    }
+    else
+    {
+        Write-Host "Failed to add pgAdmin4 shortcut to Desktop"
+    }
 }
 else
 {
@@ -181,22 +210,33 @@ else
 
 
 Write-Host 'Region and Locale'
-$reg_flag_file = "\scripts\reg.txt"
+$reg_flag_file = "\PerfLogs\reg.txt"
 if (-not (Test-Path $reg_flag_file))
 {
     Write-Host 'Setting home location to the United Kingdom'
     Set-WinHomeLocation 242
+    $result1 = $?
 
     Write-Host 'Setting system local'
     Set-WinSystemLocale en-GB
+    $result2 = $?
 
     Write-Host 'Setting regional format (date/time etc.) to English (United Kingdon) - this applies to all users'
     Set-Culture en-GB
+    $result3 = $?
 
     Write-Host 'Setting TimeZone to GMT'
     Set-TimeZone "GMT Standard Time"
+    $result4 = $?
 
-    New-Item -Path $reg_flag_file -ItemType "file" -Value "Region and Locale set. Remove this file to re-add."
+    if ($result1 -and $result2 -and $result3 -and $result4)
+    {
+        New-Item -Path $reg_flag_file -ItemType "file" -Value "Region and Locale set. Remove this file to re-add."
+    }
+    else
+    {
+        Write-Host "Failed to set Region and Locale"
+    }
 }
 else
 {
@@ -214,26 +254,35 @@ if ($is_part_of_domain -eq $false -and $is_part_of_valid -eq $true -and
     Write-Host 'Join Computer to the DQ domain'
     Write-Host "Retrieving joiner username and password"
     $joiner_usr = (Get-SSMParameter -Name "AD_Domain_Joiner_Username" -WithDecryption $False).Value
+    $result1 = $?
     $joiner_pwd = (Get-SSMParameter -Name "AD_Domain_Joiner_Password" -WithDecryption $True).Value
+    $result2 = $?
     Write-Host "Retrieved joiner username ($joiner_usr) and password"
     $domain = 'dq.homeoffice.gov.uk'
     $username = $joiner_usr + "@" + $domain
     $password = ConvertTo-SecureString $joiner_pwd -AsPlainText -Force
     $credential = New-Object System.Management.Automation.PSCredential($username,$password)
 
-    if ($current_hostname -ne $new_hostname)
+    if ($result1 -and $result2)
     {
-        Write-Host "Renaming host from $current_hostname to $new_hostname"
-        Rename-Computer -NewName $new_hostname
-        sleep 20
-        Write-Host "Joining host to Domain $domain using user $username - with rename option"
-#        Add-Computer -DomainName $domain -Credential $credential -Options JoinWithNewName,AccountCreate -NewName $new_hostname -Restart -Force
-        Add-Computer -DomainName $domain -Credential $credential -Options JoinWithNewName -NewName $new_hostname -Restart -Force
+        if ($current_hostname -ne $new_hostname)
+        {
+            Write-Host "Renaming host from $current_hostname to $new_hostname"
+            Rename-Computer -NewName $new_hostname
+            sleep 20
+            Write-Host "Joining host to Domain $domain using user $username - with rename option"
+    #        Add-Computer -DomainName $domain -Credential $credential -Options JoinWithNewName,AccountCreate -NewName $new_hostname -Restart -Force
+            Add-Computer -DomainName $domain -Credential $credential -Options JoinWithNewName -NewName $new_hostname -Restart -Force
+        }
+        else
+        {
+            Write-Host "Joining host to Domain $domain using user $username - without rename option"
+            Add-Computer -DomainName $domain -Credential $credential -Restart -Force
+        }
     }
     else
     {
-        Write-Host "Joining host to Domain $domain using user $username - without rename option"
-        Add-Computer -DomainName $domain -Credential $credential -Restart -Force
+        Write-Host "Failed to retrieve username/password to join domain"
     }
 }
 else
