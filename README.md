@@ -31,7 +31,7 @@ If the proxy is to be used the latest version of `packer.py` must be downloaded 
 
 
 #### `scripts`
-- `disable-esc-and-iac.ps1` turn off annoying Windows pop-ups
+- `disable-esc-and-iac.ps1` turn off annoying Windows pop-ups (Internet Explorer Enhanced Security Configuration)
 - `monitor_stopped_win_services.ps1` checks if there are any service in the *stopped* state where they are set to *automatic* startup
 - `setupwrm.ps1` enable WRM service so packer can interact with the instance
 - `sysprep-bundleconfig.ps1` turn on sysprep using a custom xml config file
