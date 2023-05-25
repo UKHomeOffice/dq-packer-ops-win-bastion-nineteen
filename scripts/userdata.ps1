@@ -75,6 +75,7 @@ else
 {
     $environment = "UNKNOWN"
 }
+$environment_lc = $environment.ToLower()
 Write-Host ">>>>>>>>>>> Environment is $environment! <<<<<<<<<<<<<"
 
 
@@ -124,8 +125,8 @@ $env_flag_file = "\PerfLogs\env.txt"
 if (-not (Test-Path $env_flag_file))
 {
     Write-Host 'Setting config bucket environment variable'
-    [Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment/sqlworkbench", "Machine")
-    [System.Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment/sqlworkbench")
+    [Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment_lc/sqlworkbench", "Machine")
+    [System.Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment_lc/sqlworkbench")
     New-Item -Path $env_flag_file -ItemType "file" -Value "Environment variables set. Remove this file to re-run." | Out-Null
 }
 else
@@ -139,7 +140,7 @@ $rdp_flag_file = "\PerfLogs\rdp.txt"
 if (-not (Test-Path $rdp_flag_file))
 {
     Write-Host 'Adding Tableau Development RDP Shortcuts to Desktop'
-    Copy-Item -Path C:\misc\* -Filter *-$environment* -Destination C:\Users\Public\Desktop -Recurse
+    Copy-Item -Path C:\misc\* -Filter *-$environment_lc* -Destination C:\Users\Public\Desktop -Recurse
     if ($?)
     {
         New-Item -Path $rdp_flag_file -ItemType "file" -Value "Tableau Development RDP Shortcuts added to Desktop. Remove this file to re-add." | Out-Null
