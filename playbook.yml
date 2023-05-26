@@ -125,24 +125,24 @@
         dest: 'C:\Users\Public\Desktop\DBeaver.lnk'
         icon: 'C:\Program Files\DBeaver\dbeaver.exe'
 
-    - name: Download PGAdmin4 6.21
+    - name: Download PGAdmin4 7.1
       win_shell: |
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        $url = "https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v6.21/windows/pgadmin4-6.21-x64.exe"
-        $output = "C:\tmp\install\pgadmin4-6.21-x64.exe"
+        $url = "https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v7.1/windows/pgadmin4-7.1-x64.exe"
+        $output = "C:\tmp\install\pgadmin4-7.1-x64.exe"
         $wc = New-Object System.Net.WebClient
         $wc.DownloadFile($url, $output)
 
-    - name: Install PGAdmin4 6.21
+    - name: Install PGAdmin4
       win_shell: |
-        C:\tmp\install\pgadmin4-6.21-x64.exe /VERYSILENT /NORESTART /ALLUSERS
+        C:\tmp\install\pgadmin4-7.1-x64.exe /VERYSILENT /NORESTART /ALLUSERS
 
-    - name: PGAdmin4 v6 - create shortcut for all users (Public Desktop)
+    - name: PGAdmin4 v7 - create shortcut for all users (Public Desktop)
       win_shortcut:
-        src: 'C:\Program Files\pgAdmin 4\v6\runtime\pgAdmin4.exe'
+        src: 'C:\Program Files\pgAdmin 4\v7\runtime\pgAdmin4.exe'
         dest: 'C:\Users\Public\Desktop\pgAdmin4.lnk'
-        icon: 'C:\Program Files\pgAdmin 4\v6\runtime\pgAdmin4.exe'
+        icon: 'C:\Program Files\pgAdmin 4\v7\runtime\pgAdmin4.exe'
 
     - name: Download Athena JDBC Driver - with AWS SDK for Tableau Desktop
       win_get_url:
