@@ -177,6 +177,21 @@ if (-not (Test-Path $rds_flag_file))
     {
         Write-Host "Failed to install Windows Remote Desktop Services"
     }
+    # An attempt has been made to install one or more Windows features - most of these require a restart afterwards
+    # Even though the rename and domain join force a restart, during testing a further restart was required.
+    # Hence we will force a restart now
+    $rst_flag_file = "\PerfLogs\rst.txt"
+    if (-not (Test-Path $rst_flag_file))
+    {
+        # We do not want to get into an endless loop of restarting the computer if the RDS installation fails
+        New-Item -Path $rst_flag_file -ItemType "file" -Value "Restart triggered (initiated by Remote Desktop Services installation). Remove this file to re-trigger." | Out-Null
+        Restart-Computer
+    }
+    else
+    {
+        Write-Host "Restart (initiated by Remote Desktop Services installation) already triggered once - not restarting again."
+    }
+
 }
 else
 {
@@ -255,7 +270,7 @@ if (-not (Test-Path $reg_flag_file))
     }
     else
     {
-        Write-Host 'Setting regional format (date/time etc.) to English (United Kingdon) - this applies to all users'
+        Write-Host 'Setting regional format (date/time etc.) to English (United Kingdon) - only applies to current user'
         Set-Culture en-GB
     }
 
