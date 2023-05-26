@@ -84,13 +84,19 @@ $current_hostname = $env:computername
 Write-Host "The current hostname is $current_hostname"
 
 
-if (!($environment -eq "NotProd" -or $environment -eq "Prod"))
+# Stop if not a valid environment
+if ($environment -eq "NotProd" -or $environment -eq "Prod")
+{
+    Write-Host "The environment is  $environment, continuing to configure computer..."
+}
+else
 {
     Write-Host "As the environment is $environment, not trying set up any more. Exiting..."
     Exit 0
 }
 
-# Only attempt the following if we operating in a known environment
+
+# Decipher desired host name
 Write-Host "Deciphering the desired name of the host from the host part of the IP Address $host_part !"
 if (-not $host_part)
 {
@@ -119,7 +125,7 @@ else
 Write-Host ">>>>>>>>>>> Host should be named $new_hostname <<<<<<<<<<<<<"
 
 
-
+# Env vars
 Write-Host 'Environment Variables'
 $env_flag_file = "\PerfLogs\env.txt"
 if (-not (Test-Path $env_flag_file))
@@ -135,6 +141,55 @@ else
 }
 
 
+# Rename Computer
+# If the host has not already been renamed
+if ($current_hostname -ne $new_hostname)
+{
+    Write-Host "Renaming host from $current_hostname to $new_hostname - and RESTARTING"
+    Rename-Computer -NewName $new_hostname -Force -Restart
+    Sleep 60
+}
+else
+{
+    Write-Host "Hostname already correct ($current_hostname = $new_hostname)"
+}
+
+
+
+#  Join to Domain
+# If the host has not already joined the domain
+if ($is_part_of_domain -eq $false -and $is_part_of_valid -eq $true)
+{
+    Write-Host 'Join Computer to the DQ domain'
+    Write-Host "Retrieving joiner username and password"
+    $joiner_usr = (Get-SSMParameter -Name "AD_Domain_Joiner_Username" -WithDecryption $False).Value
+    if (!$?)
+    {
+        Write-Host "Cannot retrieve Domain Joiner Username. Exiting..."
+        Exit 1
+    }
+    $joiner_pwd = (Get-SSMParameter -Name "AD_Domain_Joiner_Password" -WithDecryption $True).Value
+    if (!$?)
+    {
+        Write-Host "Cannot retrieve Domain Joiner Password. Exiting..."
+        Exit 1
+    }
+    Write-Host "Successfully retrieved joiner username ($joiner_usr) and password"
+    $domain = 'dq.homeoffice.gov.uk'
+    $username = $joiner_usr + "@" + $domain
+    $password = ConvertTo-SecureString $joiner_pwd -AsPlainText -Force
+    $credential = New-Object System.Management.Automation.PSCredential($username,$password)
+
+    Write-Host "Joining host to Domain $domain using user $username - without rename option"
+    Add-Computer -DomainName $domain -Credential $credential -Restart -Force
+}
+else
+{
+    Write-Host "Host already joined to domain"
+}
+
+
+# Tab Dev RDP shortcuts
 Write-Host 'Tableau Development RDP Shortcuts'
 $rdp_flag_file = "\PerfLogs\rdp.txt"
 if (-not (Test-Path $rdp_flag_file))
@@ -155,7 +210,7 @@ else
     Write-Host 'Tableau Development RDP Shortcuts already added to Desktop'
 }
 
-
+# RDS - Windows Remote Desktop Services
 Write-Host 'Windows Remote Desktop Services'
 $rds_flag_file = "\PerfLogs\rds.txt"
 if (-not (Test-Path $rds_flag_file))
@@ -171,7 +226,7 @@ if (-not (Test-Path $rds_flag_file))
     $result4 = $?
     if ($result1 -and $result2 -and $result3 -and $result4)
     {
-        New-Item -Path $rds_flag_file -ItemType "file" -Value "Remote Desktop Services installed. Remove this file to re-add." | Out-Null
+        New-Item -Path $rds_flag_file -ItemType "file" -Value "Windows Remote Desktop Services installed. Remove this file to re-add." | Out-Null
     }
     else
     {
@@ -186,6 +241,8 @@ if (-not (Test-Path $rds_flag_file))
         # We do not want to get into an endless loop of restarting the computer if the RDS installation fails
         New-Item -Path $rst_flag_file -ItemType "file" -Value "Restart triggered (initiated by Remote Desktop Services installation). Remove this file to re-trigger." | Out-Null
         Restart-Computer
+        # By default the computer will restart in 5 seconds - so sleep while waiting...
+        Sleep 60
     }
     else
     {
@@ -195,9 +252,11 @@ if (-not (Test-Path $rds_flag_file))
 }
 else
 {
-    Write-Host 'Remote Desktop Services already installed'
+    Write-Host 'Windows Remote Desktop Services already installed'
 }
 
+
+# pgAdmin shortcut
 Write-Host 'pgAdmin4 Shortcut'
 $pga_flag_file = "\PerfLogs\pga.txt"
 if (-not (Test-Path $pga_flag_file))
@@ -302,54 +361,6 @@ if (-not (Test-Path $reg_flag_file))
 else
 {
     Write-Host 'Region and Locale already set'
-}
-
-
-# Rename Computer and Join to Domain
-# If the host has not already joined the domain and it is a genuine environment
-if ($is_part_of_domain -eq $false -and $is_part_of_valid -eq $true -and
-        ($environment  -eq "NotProd" -or $environment -eq "Prod") -and
-        ($new_hostname -ne "UNKNOWN")
-    )
-{
-    Write-Host 'Join Computer to the DQ domain'
-    Write-Host "Retrieving joiner username and password"
-    $joiner_usr = (Get-SSMParameter -Name "AD_Domain_Joiner_Username" -WithDecryption $False).Value
-    if (!$?)
-    {
-        Write-Host "Cannot retrieve Domain Joiner Username. Exiting..."
-        Exit 1
-    }
-    $joiner_pwd = (Get-SSMParameter -Name "AD_Domain_Joiner_Password" -WithDecryption $True).Value
-    if (!$?)
-    {
-        Write-Host "Cannot retrieve Domain Joiner Password. Exiting..."
-        Exit 1
-    }
-    Write-Host "Retrieved joiner username ($joiner_usr) and password"
-    $domain = 'dq.homeoffice.gov.uk'
-    $username = $joiner_usr + "@" + $domain
-    $password = ConvertTo-SecureString $joiner_pwd -AsPlainText -Force
-    $credential = New-Object System.Management.Automation.PSCredential($username,$password)
-
-    if ($current_hostname -ne $new_hostname)
-    {
-        Write-Host "Renaming host from $current_hostname to $new_hostname"
-        Rename-Computer -NewName $new_hostname
-        sleep 20
-        Write-Host "Joining host to Domain $domain using user $username - with rename option"
-#        Add-Computer -DomainName $domain -Credential $credential -Options JoinWithNewName,AccountCreate -NewName $new_hostname -Restart -Force
-        Add-Computer -DomainName $domain -Credential $credential -Options JoinWithNewName -NewName $new_hostname -Restart -Force
-    }
-    else
-    {
-        Write-Host "Joining host to Domain $domain using user $username - without rename option"
-        Add-Computer -DomainName $domain -Credential $credential -Restart -Force
-    }
-}
-else
-{
-    Write-Host "Host already joined to domain"
 }
 
 Stop-Transcript
