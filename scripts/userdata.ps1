@@ -2,7 +2,6 @@ Start-Transcript -path C:\PerfLogs\userdata_output.log -append
 
 # First work out if host has joined a Domain or is still part of Workgroup
 Write-Host "Checking if host joined to a domain, yet"
-# Consider using Get-ADDomain (from ActiveDirectory module)
 $is_part_of_domain = (Get-WmiObject -Class Win32_ComputerSystem).PartOfDomain
 $workgroup = (Get-WmiObject -Class Win32_ComputerSystem).Workgroup
 $is_part_of_workgroup = $workgroup -eq "WORKGROUP"
@@ -12,6 +11,9 @@ $is_part_of_valid = $false
 if ($is_part_of_domain -eq $true -and $is_part_of_workgroup -eq $false)
 {
     $is_part_of = "DOMAIN"
+    $my_domain = Get-ADDomain
+    $my_domain_name = $my_domain.Name
+    $my_domain_name_full = $my_domain.Forest
     $is_part_of_valid = $true
 }
 elseif ($is_part_of_workgroup -eq $true -and $is_part_of_domain -eq $false)
@@ -38,6 +40,10 @@ else
 if ($is_part_of_valid)
 {
     Write-Host "Host is part of $is_part_of"
+    if ($my_domain_name_full -ne "")
+    {
+        Write-Host "Domain = $my_domain_name_full"
+    }
 }
 else
 {
@@ -147,7 +153,7 @@ if ($current_hostname -ne $new_hostname)
 {
     Write-Host "Renaming host from $current_hostname to $new_hostname - and RESTARTING"
     Rename-Computer -NewName $new_hostname -Force -Restart
-    Sleep 60
+    Sleep 600 # To prevent script from continuing before restart takes effect
 }
 else
 {
@@ -180,8 +186,9 @@ if ($is_part_of_domain -eq $false -and $is_part_of_valid -eq $true)
     $password = ConvertTo-SecureString $joiner_pwd -AsPlainText -Force
     $credential = New-Object System.Management.Automation.PSCredential($username,$password)
 
-    Write-Host "Joining host to Domain $domain using user $username - without rename option"
+    Write-Host "Joining host to Domain $domain using user $username - without rename option - and RESTARTING"
     Add-Computer -DomainName $domain -Credential $credential -Restart -Force
+    Sleep 600 # To prevent script from continuing before restart takes effect
 }
 else
 {
@@ -240,9 +247,10 @@ if (-not (Test-Path $rds_flag_file))
     {
         # We do not want to get into an endless loop of restarting the computer if the RDS installation fails
         New-Item -Path $rst_flag_file -ItemType "file" -Value "Restart triggered (initiated by Remote Desktop Services installation). Remove this file to re-trigger." | Out-Null
+        Write-Host "Windows Remote Desktop Services installed - RESTARTING"
         Restart-Computer
         # By default the computer will restart in 5 seconds - so sleep while waiting...
-        Sleep 60
+        Sleep 600 # To prevent script from continuing before restart takes effect
     }
     else
     {
