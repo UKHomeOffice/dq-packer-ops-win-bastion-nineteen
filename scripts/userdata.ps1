@@ -50,6 +50,7 @@ else
     Write-Host "DEBUG! is_part_of_domain = $is_part_of_domain, is_part_of_workgroup = $is_part_of_workgroup"
 }
 
+
 # Get the IP Address and break it down into managable parts
 Write-Host 'Getting IP address of host!'
 $my_ip_full = Get-Netipaddress -addressfamily ipv4
@@ -134,7 +135,8 @@ Write-Host ">>>>>>>>>>> Host should be named $new_hostname <<<<<<<<<<<<<"
 # Env vars
 Write-Host 'Environment Variables'
 $env_flag_file = "\PerfLogs\env.txt"
-if (-not (Test-Path $env_flag_file))
+$env_flag = (Test-Path $env_flag_file)
+if (-not $env_flag)
 {
     Write-Host 'Setting config bucket environment variable'
     [Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment_lc/sqlworkbench", "Machine")
@@ -199,7 +201,8 @@ else
 # Tab Dev RDP shortcuts
 Write-Host 'Tableau Development RDP Shortcuts'
 $rdp_flag_file = "\PerfLogs\rdp.txt"
-if (-not (Test-Path $rdp_flag_file))
+$rdp_flag = (Test-Path $rdp_flag_file)
+if (-not $rdp_flag)
 {
     Write-Host 'Adding Tableau Development RDP Shortcuts to Desktop'
     Copy-Item -Path C:\misc\* -Filter *-$environment_lc* -Destination C:\Users\Public\Desktop -Recurse
@@ -217,10 +220,12 @@ else
     Write-Host 'Tableau Development RDP Shortcuts already added to Desktop'
 }
 
+
 # RDS - Windows Remote Desktop Services
 Write-Host 'Windows Remote Desktop Services'
 $rds_flag_file = "\PerfLogs\rds.txt"
-if (-not (Test-Path $rds_flag_file))
+$rds_flag = (Test-Path $rds_flag_file)
+if (-not $rds_flag)
 {
     Write-Host 'Installing Windows Remote Desktop Services'
     Install-WindowsFeature -name windows-internal-database -Verbose
@@ -239,58 +244,18 @@ if (-not (Test-Path $rds_flag_file))
     {
         Write-Host "Failed to install Windows Remote Desktop Services"
     }
-#    # An attempt has been made to install one or more Windows features - most of these require a restart afterwards
-#    # Even though the rename and domain join force a restart, during testing a further restart was required.
-#    # Hence we will force a restart now
-#    $rst_flag_file = "\PerfLogs\rst.txt"
-#    if (-not (Test-Path $rst_flag_file))
-#    {
-#        # We do not want to get into an endless loop of restarting the computer if the RDS installation fails
-#        New-Item -Path $rst_flag_file -ItemType "file" -Value "Restart triggered (initiated by Remote Desktop Services installation). Remove this file to re-trigger." | Out-Null
-#        Write-Host "Windows Remote Desktop Services installed - RESTARTING"
-#        Restart-Computer
-#        # By default the computer will restart in 5 seconds - so sleep while waiting...
-#        Sleep 600 # To prevent script from continuing before restart takes effect
-#    }
-#    else
-#    {
-#        Write-Host "Restart (initiated by Remote Desktop Services installation) already triggered once - not restarting again."
-#    }
 }
 else
 {
     Write-Host 'Windows Remote Desktop Services already installed'
 }
 
-# RDS - Windows Remote Desktop Services - Restart
-Write-Host 'Windows Remote Desktop Services - Startup Type & Status'
-$rss_flag_file = "\PerfLogs\rss.txt"
-$my_rds = Get-Service -Name TermService
-$my_rds_startup_type = $my_rds
-if (-not (Test-Path $rss_flag_file))
-{
-    Write-Host 'Setting Windows Remote Desktop Services Startup Type'
-    # The RDS service has:
-    # -Name: TermService
-    # -DisplayName: "Remote Desktop Services"
-    Set-Service  -Name TermService -StartupType Automatic
-    Restart-Service -Force -Name TermService
-    New-Item -Path $rss_flag_file -ItemType "file" -Value "Windows Remote Desktop Services Startup Type set. Remove this file to re-set." | Out-Null
-}
-elseif ($my_rds_startup_type -eq "Automatic")
-{
-    Write-Host "Windows Remote Desktop Services Startup Type already set to Automatic"
-}
-else
-{
-    Write-Host "Unexpected state - Windows Remote Desktop Services Startup Type set to automatic but value is $my_rds_startup_type."
-}
-
 
 # pgAdmin shortcut
 Write-Host 'pgAdmin4 Shortcut'
 $pga_flag_file = "\PerfLogs\pga.txt"
-if (-not (Test-Path $pga_flag_file))
+$pga_flag = (Test-Path $pga_flag_file)
+if (-not $pga_flag)
 {
     Write-Host 'Creating pgAdmin4 Shortcut on Desktop'
     $SourceFileLocation = 'C:\Program Files\pgAdmin 4\v6\runtime\pgAdmin4.exe'
@@ -318,7 +283,8 @@ else
 # Check each value each time until all 4 settings are set - then set the flag file to skip this for subsequent runs
 Write-Host 'Region and Locale'
 $reg_flag_file = "\PerfLogs\reg.txt"
-if (-not (Test-Path $reg_flag_file))
+$reg_flag = (Test-Path $reg_flag_file)
+if (-not $reg_flag)
 {
     Write-Host "Home Location"
     $reg_home_loc = $False
@@ -392,6 +358,27 @@ if (-not (Test-Path $reg_flag_file))
 else
 {
     Write-Host 'Region and Locale already set'
+}
+
+
+# Final Restart
+# Despite the various restarts in this userdata script,
+# it has been found during testing that one final restart is often required to get a newly deployed
+# Windows Bastion to successfully connect via RDP to a client.
+# Hence we will force a restart now
+$rst_flag_file = "\PerfLogs\rst.txt"
+$rst_flag = (Test-Path $rst_flag_file)
+if (-not $rst_flag -and $env_flag -and $rdp_flag -and $rds_flag -and $pga_flag) # not using
+{
+    New-Item -Path $rst_flag_file -ItemType "file" -Value "Final restart triggered. Remove this file to re-trigger." | Out-Null
+    Write-Host "Final restart required to get RDP to work - RESTARTING"
+    Restart-Computer
+    # By default the computer will restart in 5 seconds - so sleep while waiting...
+    Sleep 600 # To prevent script from continuing before restart takes effect
+}
+else
+{
+    Write-Host "Final restart already triggered once - not restarting again."
 }
 
 Stop-Transcript
