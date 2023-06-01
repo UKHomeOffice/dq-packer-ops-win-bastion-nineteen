@@ -40,7 +40,7 @@ else
 if ($is_part_of_valid)
 {
     Write-Host "Host is part of $is_part_of"
-    if ($my_domain_name_full -ne "")
+    if ($my_domain_name_full)
     {
         Write-Host "Domain = $my_domain_name_full"
     }
@@ -239,28 +239,51 @@ if (-not (Test-Path $rds_flag_file))
     {
         Write-Host "Failed to install Windows Remote Desktop Services"
     }
-    # An attempt has been made to install one or more Windows features - most of these require a restart afterwards
-    # Even though the rename and domain join force a restart, during testing a further restart was required.
-    # Hence we will force a restart now
-    $rst_flag_file = "\PerfLogs\rst.txt"
-    if (-not (Test-Path $rst_flag_file))
-    {
-        # We do not want to get into an endless loop of restarting the computer if the RDS installation fails
-        New-Item -Path $rst_flag_file -ItemType "file" -Value "Restart triggered (initiated by Remote Desktop Services installation). Remove this file to re-trigger." | Out-Null
-        Write-Host "Windows Remote Desktop Services installed - RESTARTING"
-        Restart-Computer
-        # By default the computer will restart in 5 seconds - so sleep while waiting...
-        Sleep 600 # To prevent script from continuing before restart takes effect
-    }
-    else
-    {
-        Write-Host "Restart (initiated by Remote Desktop Services installation) already triggered once - not restarting again."
-    }
-
+#    # An attempt has been made to install one or more Windows features - most of these require a restart afterwards
+#    # Even though the rename and domain join force a restart, during testing a further restart was required.
+#    # Hence we will force a restart now
+#    $rst_flag_file = "\PerfLogs\rst.txt"
+#    if (-not (Test-Path $rst_flag_file))
+#    {
+#        # We do not want to get into an endless loop of restarting the computer if the RDS installation fails
+#        New-Item -Path $rst_flag_file -ItemType "file" -Value "Restart triggered (initiated by Remote Desktop Services installation). Remove this file to re-trigger." | Out-Null
+#        Write-Host "Windows Remote Desktop Services installed - RESTARTING"
+#        Restart-Computer
+#        # By default the computer will restart in 5 seconds - so sleep while waiting...
+#        Sleep 600 # To prevent script from continuing before restart takes effect
+#    }
+#    else
+#    {
+#        Write-Host "Restart (initiated by Remote Desktop Services installation) already triggered once - not restarting again."
+#    }
 }
 else
 {
     Write-Host 'Windows Remote Desktop Services already installed'
+}
+
+# RDS - Windows Remote Desktop Services - Restart
+Write-Host 'Windows Remote Desktop Services - Startup Type & Status'
+$rss_flag_file = "\PerfLogs\rss.txt"
+$my_rds = Get-Service -Name TermService
+$my_rds_startup_type = $my_rds
+if (-not (Test-Path $rss_flag_file))
+{
+    Write-Host 'Setting Windows Remote Desktop Services Startup Type'
+    # The RDS service has:
+    # -Name: TermService
+    # -DisplayName: "Remote Desktop Services"
+    Set-Service  -Name TermService -StartupType Automatic
+    Restart-Service -Force -Name TermService
+    New-Item -Path $rss_flag_file -ItemType "file" -Value "Windows Remote Desktop Services Startup Type set. Remove this file to re-set." | Out-Null
+}
+elseif ($my_rds_startup_type -eq "Automatic")
+{
+    Write-Host "Windows Remote Desktop Services Startup Type already set to Automatic"
+}
+else
+{
+    Write-Host "Unexpected state - Windows Remote Desktop Services Startup Type set to automatic but value is $my_rds_startup_type."
 }
 
 
