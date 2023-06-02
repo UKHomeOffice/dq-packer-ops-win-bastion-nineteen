@@ -239,6 +239,10 @@ if (-not $rds_flag)
     if ($result1 -and $result2 -and $result3 -and $result4)
     {
         New-Item -Path $rds_flag_file -ItemType "file" -Value "Windows Remote Desktop Services installed. Remove this file to re-add." | Out-Null
+        Write-Host "Windows Remote Desktop Services installed - RESTARTING"
+        Restart-Computer -Force
+        # By default the computer will restart in 5 seconds - so sleep while waiting...
+        Sleep 600 # To prevent script from continuing before restart takes effect
     }
     else
     {
@@ -368,11 +372,11 @@ else
 # Hence we will force a restart now
 $rst_flag_file = "\PerfLogs\rst.txt"
 $rst_flag = (Test-Path $rst_flag_file)
-if (-not $rst_flag -and $env_flag -and $rdp_flag -and $rds_flag -and $pga_flag) # not using
+if (-not $rst_flag)
 {
     New-Item -Path $rst_flag_file -ItemType "file" -Value "Final restart triggered. Remove this file to re-trigger." | Out-Null
     Write-Host "Final restart required to get RDP to work - RESTARTING"
-    Restart-Computer
+    Restart-Computer -Force
     # By default the computer will restart in 5 seconds - so sleep while waiting...
     Sleep 600 # To prevent script from continuing before restart takes effect
 }
