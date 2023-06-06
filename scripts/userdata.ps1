@@ -330,7 +330,7 @@ if (-not $reg_flag)
     }
     else
     {
-        Write-Host 'Setting regional format (date/time etc.) to English (United Kingdon) - only applies to current user'
+        Write-Host 'Setting regional format (date/time etc.) to British - only applies to current user'
         Set-Culture en-GB
     }
 
