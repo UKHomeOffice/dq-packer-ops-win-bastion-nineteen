@@ -244,35 +244,7 @@
         $task = Register-ScheduledTask -TaskName $name -Trigger $trigger -Action $action -Description $description -Principal $principal
         $task | Set-ScheduledTask
 
-    - name: Add entries into Windows hosts file
-      # Using multiple win_lineinfile sections because blockinfile is unavailable on Windows
-      win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.12.111 analysis.notprod.dq.homeoffice.gov.uk www.analysis.notprod.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
-    - win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.12.111 analysis.dq.homeoffice.gov.uk www.analysis.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
-    - win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.14.111 carrierportal.notprod.dq.homeoffice.gov.uk www.carrierportal.notprod.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
-    - win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.14.111 carrierportal.dq.homeoffice.gov.uk www.carrierportal.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
-    - win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.12.115 analysis-staging.dq.homeoffice.gov.uk www.analysis-staging.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
-    - win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.14.115 carrierportal.staging.dq.homeoffice.gov.uk www.carrierportal.staging.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
+    - name: GET windows host files from S3
+      win_shell: aws s3 cp s3://dq-config-bucket/dq-ops-win/hosts C:\Windows\System32\drivers\etc\hosts
+      args:
+        executable: powershell.exe
